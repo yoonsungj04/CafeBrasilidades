@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Café Brasilidades · 2.0</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Archivo+Black&family=Pacifico&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green:        #1a6b3a;
+    --green-deep:   #0d3b21;
+    --green-light:  #2d9e58;
+    --yellow:       #f5c800;
+    --yellow-dark:  #c9a200;
+    --cream:        #f7f2e8;
+    --dark:         #0d1f14;
+
+    /* state-driven tokens — swapped by body class */
+    --bg:    var(--cream);
+    --ink:   var(--green);
+    --ink-2: var(--green-light);
+    --accent: var(--yellow-dark);
+    --track: rgba(26,107,58,0.14);
+    --prog:  var(--green-light);
+    --btn-bg: var(--green);
+    --btn-fg: #fff;
+  }
+
+  /* ── STATE: pouring → GO → flood vivid green ── */
+  body.state-pour {
+    --bg:    var(--green);
+    --ink:   var(--cream);
+    --ink-2: var(--yellow);
+    --accent: var(--yellow);
+    --track: rgba(247,242,232,0.20);
+    --prog:  var(--yellow);
+    --btn-bg: var(--yellow);
+    --btn-fg: var(--dark);
+  }
+  /* ── STATE: waiting / bloom → REST → flood soft, calm yellow ── */
+  body.state-wait {
+    --bg:    #e6c95f;   /* softened, restful yellow — a touch darker */
+    --ink:   var(--green-deep);
+    --ink-2: var(--green);
+    --accent: var(--green-deep);
+    --track: rgba(13,59,33,0.16);
+    --prog:  var(--green);
+    --btn-bg: var(--green);
+    --btn-fg: var(--cream);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    transition: background 0.55s ease, color 0.55s ease;
+  }
+
+  /* ── App shell ── */
+  .app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: calc(20px + env(safe-area-inset-top)) 22px calc(20px + env(safe-area-inset-bottom));
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    min-height: 42px;
+  }
+  .brand {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    transition: color 0.55s ease;
+  }
+  .phase-counter {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+    transition: color 0.55s ease;
+  }
+
+  /* phase name — bare text, contrasting the background */
+  .phase-mode-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    margin: 0 auto;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(30px, 9vw, 42px);
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--ink);
+    transition: color 0.55s ease;
+  }
+
+  /* per-step countdown — how long to keep doing THIS */
+  .phase-countdown {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    min-height: 18px;
+    margin: 16px 0;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.55s ease;
+  }
+  /* the GO/pour title gently pulses to grab attention */
+  body.state-pour .phase-mode-chip { animation: bannerPulse 1.3s ease-in-out infinite; }
+  @keyframes bannerPulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.03); }
+  }
+
+  /* ── HERO: time ring ── */
+  .hero {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 18px;
+    min-height: 0;
+  }
+  .time-ring {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .time-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; }
+  .ring-track { fill: none; stroke: var(--track); stroke-width: 9; transition: stroke 0.55s ease; }
+  .ring-prog  { fill: none; stroke: var(--prog); stroke-width: 9; stroke-linecap: round; transition: stroke 0.55s ease; }
+
+  .time-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .time-value {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(58px, 22vw, 92px);
+    line-height: 0.9;
+    color: var(--ink);
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.55s ease;
+  }
+  .time-label {
+    margin-top: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    transition: color 0.55s ease;
+  }
+
+  /* ── Water reference (secondary) ── */
+  .water-ref {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 14px;
+    padding: 14px 32px;
+    border-radius: 40px;
+    border: 2px solid var(--track);
+    transition: border-color 0.55s ease;
+  }
+  .water-ref .wlabel {
+    font-family: 'Pacifico', cursive;
+    font-size: 24px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink-2);
+    transition: color 0.55s ease;
+  }
+  .water-ref .wval {
+    font-family: 'Pacifico', cursive;
+    font-size: 34px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    transition: color 0.55s ease;
+  }
+  .water-ref .wval .u { font-size: 20px; opacity: 0.6; }
+  .water-ref .wval .arrow {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px;
+    opacity: 0.65;
+    margin-right: 6px;
+  }
+  /* gentle pulse while pouring */
+  body.state-pour .water-ref { animation: refPulse 1.2s ease-in-out infinite; }
+  @keyframes refPulse {
+    0%,100% { transform: scale(1); }
+    50%     { transform: scale(1.045); }
+  }
+
+  /* ── Instruction (prominent, action text) ── */
+  .instruction {
+    width: 100%;
+    max-width: 380px;
+    margin: 18px auto 18px;
+    text-align: center;
+    text-wrap: balance;
+    font-size: clamp(18px, 5.2vw, 22px);
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--ink);
+    min-height: 58px;
+    transition: color 0.55s ease;
+  }
+  .instruction b { font-weight: 700; color: var(--accent); transition: color 0.55s ease; }
+
+  /* ── Controls ── */
+  .controls { width: 100%; display: flex; gap: 12px; }
+  .start-btn {
+    flex: 1;
+    height: 62px;
+    border: none;
+    border-radius: 18px;
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    transition: transform 0.12s, background 0.55s ease, color 0.55s ease;
+  }
+  .start-btn:active { transform: scale(0.97); }
+  .reset-btn {
+    width: 62px; height: 62px;
+    flex: 0 0 auto;
+    border: 2px solid var(--track);
+    border-radius: 18px;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.12s, border-color 0.55s ease, color 0.55s ease;
+  }
+  .reset-btn:active { transform: scale(0.94); }
+  .reset-btn svg { width: 22px; height: 22px; }
+  .btn-icon {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2.5px solid currentColor;
+    opacity: 0.7;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .btn-icon svg { display: block; }
+
+  /* ════ Overlays: welcome / done ════ */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: calc(36px + env(safe-area-inset-top)) 26px calc(36px + env(safe-area-inset-bottom));
+    text-align: center;
+    overflow-y: auto;
+  }
+  #screen-welcome { background: var(--cream); }
+  #screen-done { background: var(--green); display: none; }
+
+  /* BRASILIDADES logo */
+  .diamond {
+    width: 260px; max-width: 70vw; height: auto;
+    display: block; margin-bottom: 20px;
+    border-radius: 14px;
+  }
+
+  .welcome-sub {
+    font-size: clamp(22px, 6.4vw, 28px); font-weight: 700; color: var(--green);
+    letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.05;
+    margin-bottom: 6px; max-width: 320px;
+  }
+  .welcome-yield {
+    font-size: 13px; font-weight: 500; color: var(--dark); opacity: 0.55;
+    letter-spacing: 0.04em; margin-bottom: 22px;
+  }
+  /* recipe spec cards */
+  .recipe-stats {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto 28px;
+  }
+  .stat {
+    flex: 1;
+    background: rgba(26,107,58,0.07);
+    border-radius: 16px;
+    padding: 15px 6px 13px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 23px;
+    line-height: 1;
+    color: var(--green);
+    letter-spacing: -0.02em;
+  }
+  .stat-num span {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px; font-weight: 400; opacity: 0.55; margin-left: 1px;
+  }
+  .stat-lbl {
+    margin-top: 7px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--green-light);
+  }
+
+  .prep { width: 100%; max-width: 340px; text-align: left; margin-bottom: 26px; }
+  .prep-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--green-light); margin-bottom: 14px;
+  }
+  .prep ol { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .prep li {
+    display: flex; align-items: flex-start; gap: 13px;
+    font-size: 14px; line-height: 1.38; color: var(--dark);
+  }
+  .prep .num {
+    flex: 0 0 24px; height: 24px; border-radius: 50%;
+    background: var(--green); color: #fff; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .big-cta {
+    width: 100%; max-width: 360px; height: 70px;
+    border: none; border-radius: 20px;
+    background: var(--green); color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; cursor: pointer;
+    transition: transform 0.12s;
+  }
+  .big-cta:active { transform: scale(0.97); }
+
+  /* Done screen — poster style */
+  .done-cup { width: 132px; height: auto; margin-bottom: 24px; }
+  .done-big {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(34px, 12vw, 60px);
+    max-width: 100%;
+    color: var(--yellow); text-transform: uppercase; line-height: 0.9;
+    letter-spacing: -0.03em;
+  }
+  .done-sub { font-size: 15px; color: var(--cream); opacity: 0.85; margin: 14px 0 34px; line-height: 1.5; }
+  #screen-done .big-cta { background: var(--yellow); color: var(--dark); }
+</style>
+</head>
+<body>
+
+<!-- ════ Welcome ════ -->
+<div id="screen-welcome" class="overlay">
+  <!-- BRASILIDADES logo -->
+  <img class="diamond" src="logobrasilidades.png" alt="Brasilidades · Café">
+
+
+  <p class="welcome-sub">O Café Ousado e Alegre</p>
+  <p class="welcome-yield">Rende 1 xícara</p>
+
+  <div class="recipe-stats">
+    <div class="stat">
+      <div class="stat-num">15<span>g</span></div>
+      <div class="stat-lbl">Café</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">250<span>g</span></div>
+      <div class="stat-lbl">Água</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">1:16</div>
+      <div class="stat-lbl">Proporção</div>
+    </div>
+  </div>
+
+  <button class="big-cta" onclick="startWelcome()">Começar o Preparo</button>
+</div>
+
+<!-- ════ Done ════ -->
+<div id="screen-done" class="overlay">
+  <svg class="done-cup" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="60" cy="60" r="58" fill="#f5c800"/>
+    <path d="M34 46h44v22a18 18 0 0 1-18 18h-8a18 18 0 0 1-18-18V46z" fill="#1a6b3a"/>
+    <path d="M78 50h6a10 10 0 0 1 0 20h-6" fill="none" stroke="#1a6b3a" stroke-width="6"/>
+    <path d="M46 30c-3 5 3 7 0 12M60 28c-3 5 3 7 0 12" fill="none" stroke="#1a6b3a" stroke-width="4" stroke-linecap="round"/>
+  </svg>
+  <div class="done-big">Aproveite!</div>
+  <p class="done-sub">Seu café está pronto.<br>Tempo total de preparo ~3:00.</p>
+  <button class="big-cta" onclick="resetAll()">Preparar de Novo</button>
+</div>
+
+<!-- ════ Main App ════ -->
+<div class="app">
+  <div class="phase-mode-chip" id="mode-chip">
+    <span id="mode-text">Pronto</span>
+  </div>
+  <div class="phase-countdown" id="phase-countdown"></div>
+
+  <!-- HERO: time ring -->
+  <div class="hero">
+    <div class="time-ring">
+      <svg viewBox="0 0 200 200">
+        <circle class="ring-track" cx="100" cy="100" r="92"/>
+        <circle class="ring-prog" id="time-ring" cx="100" cy="100" r="92"/>
+      </svg>
+      <div class="time-center">
+        <div class="time-value" id="time-display">0:00</div>
+        <div class="time-label">Tempo</div>
+      </div>
+    </div>
+
+    <!-- Water = reference only -->
+    <div class="water-ref">
+      <span class="wlabel">Água</span>
+      <span class="wval" id="water-display"><span class="arrow">→</span>50<span class="u">g</span></span>
+    </div>
+  </div>
+
+  <!-- Instruction (prominent) -->
+  <div class="instruction" id="step-text">Toque em <b>Iniciar</b> para começar o preparo</div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="start-btn" id="main-btn" onclick="handleBtn()">
+      <div class="btn-icon">
+        <svg width="9" height="11" viewBox="0 0 9 11" fill="currentColor"><polygon points="0,0 9,5.5 0,11"/></svg>
+      </div>
+      <span id="btn-label">Iniciar</span>
+    </button>
+    <button class="reset-btn" id="reset-btn" onclick="resetAll()" title="Reiniciar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+// ─── Receita V60 · 1 xícara · 15g de café / 250g de água · ~3:00 total ───
+const TOTAL_TIME = 180;   // segundos (3:00)
+const TOTAL_WATER = 250;  // gramas (apenas referência — medida na balança do usuário)
+
+const PHASES = [
+  { start:0,   end:10,  label:'Bloom',         text:'Despeje até <b>~50g</b> em círculos lentos a partir do centro', mode:'pour' },
+  { start:10,  end:15,  label:'Giro',          text:'Gire suavemente o coador',                                       mode:'wait' },
+  { start:15,  end:45,  label:'Bloom',         text:'Deixe o café florescer (<b>bloom</b>) e liberar gases',         mode:'wait' },
+  { start:45,  end:60,  label:'Despejo 2',     text:'Despeje até <b>~100g</b> no total',                              mode:'pour' },
+  { start:60,  end:70,  label:'Pausa',         text:'Pausa — deixe escoar',                                           mode:'wait' },
+  { start:70,  end:80,  label:'Despejo 3',     text:'Despeje até <b>~150g</b> no total',                              mode:'pour' },
+  { start:80,  end:90,  label:'Pausa',         text:'Pausa — deixe escoar',                                           mode:'wait' },
+  { start:90,  end:100, label:'Despejo 4',     text:'Despeje até <b>~200g</b> no total',                              mode:'pour' },
+  { start:100, end:110, label:'Pausa',         text:'Pausa — deixe escoar',                                           mode:'wait' },
+  { start:110, end:120, label:'Despejo Final', text:'Despeje até <b>~250g</b> no total',                              mode:'pour' },
+  { start:120, end:180, label:'Escoamento',    text:'Giro suave e aguarde o <b>escoamento</b> terminar',             mode:'wait' },
+];
+
+// Pontos-chave do peso (referência) — interpolado para subida fluida
+const WEIGHT_KF = [
+  { t:0,   w:0   }, { t:10,  w:50  }, { t:45,  w:50  },
+  { t:60,  w:100 }, { t:70,  w:100 },
+  { t:80,  w:150 }, { t:90,  w:150 },
+  { t:100, w:200 }, { t:110, w:200 },
+  { t:120, w:250 }, { t:180, w:250 },
+];
+
+// ─── Geometria do anel ───
+const R = 92;
+const C = 2 * Math.PI * R;
+const timeRingEl = document.getElementById('time-ring');
+timeRingEl.style.strokeDasharray = C;
+timeRingEl.style.strokeDashoffset = C;
+
+// ─── Áudio · sinos de agogô / marimba ───
+let audioCtx = null, master = null;
+function ensureAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    master = audioCtx.createGain();
+    master.gain.value = 0.4;
+    master.connect(audioCtx.destination);
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function bell(freq, when, dur, peak) {
+  if (!audioCtx) return;
+  const t0 = audioCtx.currentTime + when;
+  const partials = [[1, 1], [2.0, 0.3], [3.01, 0.1]];
+  partials.forEach(([mult, g]) => {
+    const o = audioCtx.createOscillator();
+    const a = audioCtx.createGain();
+    o.type = 'sine';
+    o.frequency.value = freq * mult;
+    o.connect(a); a.connect(master);
+    a.gain.setValueAtTime(0.0001, t0);
+    a.gain.exponentialRampToValueAtTime(peak * g, t0 + 0.012);
+    a.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.start(t0); o.stop(t0 + dur + 0.05);
+  });
+}
+function playStart() { ensureAudio(); bell(659.25, 0, 0.5, 0.5); bell(987.77, 0.13, 0.6, 0.45); }
+function playStop()  { ensureAudio(); bell(587.33, 0, 0.7, 0.45); bell(392.00, 0.14, 0.9, 0.4); }
+function playDone()  {
+  ensureAudio();
+  [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => bell(f, i * 0.13, 0.8, 0.5));
+  bell(1318.51, 0.6, 0.9, 0.35);
+}
+
+// ─── Estado ───
+let running = false;
+let rafId = null;
+let startStamp = 0;
+let baseElapsed = 0;
+let currentPhaseIdx = -1;
+let lastMode = null;
+
+// ─── Auxiliares ───
+function fmtTime(t) {
+  const s = Math.floor(t);
+  return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+}
+function weightAt(t) {
+  if (t <= WEIGHT_KF[0].t) return WEIGHT_KF[0].w;
+  for (let i = 1; i < WEIGHT_KF.length; i++) {
+    const a = WEIGHT_KF[i - 1], b = WEIGHT_KF[i];
+    if (t <= b.t) {
+      const f = (t - a.t) / (b.t - a.t);
+      return a.w + (b.w - a.w) * f;
+    }
+  }
+  return TOTAL_WATER;
+}
+function phaseAt(t) {
+  for (let i = PHASES.length - 1; i >= 0; i--) {
+    if (t >= PHASES[i].start) return i;
+  }
+  return 0;
+}
+
+// estado de cor de fundo da tela (pour / wait / neutro)
+function setScreenState(mode) {
+  document.body.classList.toggle('state-pour', mode === 'pour');
+  document.body.classList.toggle('state-wait', mode === 'wait');
+}
+
+// ─── Renderiza um quadro ───
+function render(t) {
+  t = Math.min(t, TOTAL_TIME);
+
+  // Anel de tempo (herói)
+  timeRingEl.style.strokeDashoffset = C * (1 - Math.min(1, t / TOTAL_TIME));
+  document.getElementById('time-display').textContent = fmtTime(t);
+
+  // Fase / instrução / cor de tela
+  const idx = phaseAt(t);
+  const p = PHASES[idx];
+
+  // Contagem regressiva DESTA etapa (atualiza a cada quadro)
+  const remaining = Math.max(0, Math.ceil(p.end - t));
+  document.getElementById('phase-countdown').textContent =
+    (running && remaining > 0) ? ('faltam ' + remaining + 's') : '';
+
+  if (idx !== currentPhaseIdx) {
+    currentPhaseIdx = idx;
+    document.getElementById('step-text').innerHTML = p.text;
+    document.getElementById('mode-text').textContent = p.label;
+
+    // Água = META desta etapa (peso total a alcançar na sua balança)
+    const target = Math.round(weightAt(p.end));
+    document.getElementById('water-display').innerHTML =
+      '<span class="arrow">→</span>' + target + '<span class="u">g</span>';
+
+    if (running) setScreenState(p.mode);
+
+    if (running && p.mode !== lastMode) {
+      if (p.mode === 'pour') playStart();
+      else playStop();
+    }
+    lastMode = p.mode;
+  }
+}
+
+// ─── Loop ───
+function loop(now) {
+  if (!running) return;
+  const t = baseElapsed + (now - startStamp) / 1000;
+  render(t);
+  if (t >= TOTAL_TIME) { finish(); return; }
+  rafId = requestAnimationFrame(loop);
+}
+
+function finish() {
+  running = false;
+  cancelAnimationFrame(rafId);
+  setScreenState(null);
+  playDone();
+  setTimeout(() => { document.getElementById('screen-done').style.display = 'flex'; }, 1100);
+}
+
+// ─── Controles ───
+function handleBtn() {
+  ensureAudio();
+  if (!running) {
+    if (baseElapsed === 0) { currentPhaseIdx = -1; lastMode = null; }
+    running = true;
+    startStamp = performance.now();
+    rafId = requestAnimationFrame(loop);
+    document.getElementById('btn-label').textContent = 'Pausar';
+    document.getElementById('reset-btn').style.display = 'flex';
+    // aplica imediatamente a cor da fase atual
+    setScreenState(PHASES[phaseAt(baseElapsed)].mode);
+  } else {
+    running = false;
+    cancelAnimationFrame(rafId);
+    baseElapsed += (performance.now() - startStamp) / 1000;
+    document.getElementById('btn-label').textContent = 'Retomar';
+    setScreenState(null); // tela neutra na pausa (cor + relógio param; nome da fase permanece)
+  }
+}
+
+function startWelcome() {
+  ensureAudio();
+  document.getElementById('screen-welcome').style.display = 'none';
+}
+
+function resetAll() {
+  running = false;
+  cancelAnimationFrame(rafId);
+  baseElapsed = 0;
+  currentPhaseIdx = -1;
+  lastMode = null;
+  setScreenState(null);
+  document.getElementById('screen-done').style.display = 'none';
+  render(0);
+  timeRingEl.style.strokeDashoffset = C;
+  document.getElementById('mode-text').textContent = 'Pronto';
+  document.getElementById('step-text').innerHTML = 'Toque em <b>Iniciar</b> para começar o preparo';
+  document.getElementById('btn-label').textContent = 'Iniciar';
+  document.getElementById('reset-btn').style.display = 'none';
+}
+
+// init
+render(0);
+currentPhaseIdx = -1;
+</script>
+</body>
+</html>
