@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Brasilidades">
+<meta name="theme-color" content="#050f07">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="../logobrasilidades.png">
+<title>Café Brasilidades · Diário</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --g:#1a6b3a;--gd:#0d3b21;--gl:#2d9e58;
+  --y:#f5c800;--yd:#c9a200;
+  --cr:#f7f2e8;--dk:#0d1f14;--re:#b83228;
+  --nav:calc(70px + env(safe-area-inset-bottom));
+  --top:env(safe-area-inset-top);
+}
+html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;}
+body{font-family:'Space Grotesk',-apple-system,system-ui,sans-serif;background:#050f07;}
+
+/* ── Animated background ── */
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden;
+  background:linear-gradient(160deg,#030a05 0%,#0a2010 40%,#0d2a17 70%,#040c07 100%);}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.22;animation:float 20s ease-in-out infinite;}
+.b1{width:360px;height:360px;background:var(--gl);top:-60px;left:-80px;animation-delay:0s;}
+.b2{width:280px;height:280px;background:var(--y);bottom:120px;right:-60px;animation-delay:-7s;opacity:.10;}
+.b3{width:220px;height:220px;background:var(--g);top:40%;left:30%;animation-delay:-13s;opacity:.16;}
+@keyframes float{
+  0%,100%{transform:translate(0,0) scale(1);}
+  33%{transform:translate(18px,-22px) scale(1.04);}
+  66%{transform:translate(-14px,16px) scale(.97);}
+}
+
+/* ── Shell ── */
+#app{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;}
+
+/* ── Pages ── */
+.vp{flex:1;overflow:hidden;position:relative;}
+.track{display:flex;width:200%;height:100%;transition:transform .42s cubic-bezier(.32,.72,0,1);will-change:transform;}
+.page{
+  width:50%;height:100%;
+  overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;
+  padding:calc(var(--top) + 16px) 16px calc(var(--nav) + 24px);
+}
+
+/* ── Tab bar ── */
+.tabs{
+  position:fixed;bottom:0;left:0;right:0;height:var(--nav);
+  padding-bottom:env(safe-area-inset-bottom);
+  background:rgba(5,10,7,.9);
+  backdrop-filter:blur(40px) saturate(200%);
+  -webkit-backdrop-filter:blur(40px) saturate(200%);
+  border-top:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:flex-start;justify-content:center;z-index:50;
+}
+.tab{
+  flex:1;max-width:180px;height:70px;
+  background:none;border:none;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  -webkit-tap-highlight-color:transparent;
+}
+.tab svg{width:26px;height:26px;fill:none;stroke:rgba(247,242,232,.32);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:stroke .2s,transform .2s cubic-bezier(.34,1.56,.64,1);}
+.tab span{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(247,242,232,.32);transition:color .2s;}
+.tab.on svg{stroke:var(--y);transform:scale(1.08);}
+.tab.on span{color:var(--y);}
+
+/* ── Glass card (dark version for dark bg) ── */
+.glass{
+  background:rgba(255,255,255,.075);
+  backdrop-filter:blur(40px) saturate(180%) brightness(130%);
+  -webkit-backdrop-filter:blur(40px) saturate(180%) brightness(130%);
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:22px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 8px 32px rgba(0,0,0,.45),0 2px 8px rgba(0,0,0,.3);
+  overflow:hidden;
+}
+
+/* ── Page header ── */
+.ph{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;padding:0 2px;}
+.ph h1{font-family:'Archivo Black',sans-serif;font-size:34px;color:var(--cr);letter-spacing:-.03em;line-height:1;}
+.ph p{font-size:11px;color:rgba(247,242,232,.42);font-weight:500;margin-top:3px;letter-spacing:.04em;}
+.fab{
+  width:52px;height:52px;border-radius:17px;
+  background:var(--y);border:none;cursor:pointer;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 24px rgba(245,200,0,.55),0 2px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.4);
+  transition:transform .14s cubic-bezier(.34,1.56,.64,1),box-shadow .14s;
+  -webkit-tap-highlight-color:transparent;
+}
+.fab:active{transform:scale(.88);box-shadow:0 2px 10px rgba(245,200,0,.3);}
+.fab svg{width:22px;height:22px;stroke:var(--dk);stroke-width:2.8;stroke-linecap:round;fill:none;}
+
+/* ── Entry cards ── */
+.elist{display:flex;flex-direction:column;gap:12px;}
+
+.ecard{cursor:pointer;transition:transform .14s;-webkit-tap-highlight-color:transparent;}
+.ecard:active{transform:scale(.975);}
+.ecard.best {border-color:rgba(45,158,88,.5);background:rgba(45,158,88,.1);}
+.ecard.worst{border-color:rgba(184,50,40,.3);background:rgba(184,50,40,.06);}
+
+.ephoto{width:100%;height:180px;overflow:hidden;position:relative;}
+.ephoto img{width:100%;height:100%;object-fit:cover;display:block;}
+.ephoto-placeholder{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.04);
+}
+.ephoto-placeholder svg{width:36px;height:36px;stroke:rgba(255,255,255,.15);fill:none;stroke-width:1.5;}
+.eno-photo .ephoto{display:none;}
+
+.einfo{padding:14px 15px 13px;}
+.etop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px;}
+.emethod{font-family:'Archivo Black',sans-serif;font-size:20px;color:var(--cr);letter-spacing:-.02em;line-height:1.1;}
+.etech{font-size:11px;font-weight:600;color:var(--gl);margin-top:2px;}
+.escore-big{display:flex;align-items:baseline;gap:3px;flex:0 0 auto;}
+.escore-big .n{font-family:'Archivo Black',sans-serif;font-size:30px;color:var(--y);line-height:1;letter-spacing:-.03em;}
+.escore-big .m{font-size:12px;color:rgba(247,242,232,.35);}
+.emeta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.etag{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:3px 8px;font-size:11px;font-weight:600;color:rgba(247,242,232,.6);}
+.edots{display:flex;gap:10px;}
+.edg{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.edg span{font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(247,242,232,.3);}
+.dd{display:flex;gap:2px;}
+.d{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.12);}
+.d.on{background:var(--gl);}
+.ebottom{display:flex;align-items:center;justify-content:space-between;}
+.badge{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border-radius:7px;}
+.bb{background:rgba(45,158,88,.2);color:var(--gl);}
+.bw{background:rgba(184,50,40,.15);color:var(--re);}
+
+/* ── Empty ── */
+.empty{display:none;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:14px;text-align:center;}
+.empty.show{display:flex;}
+.empty svg{width:64px;height:64px;stroke:rgba(247,242,232,.2);fill:none;stroke-width:1.3;stroke-linecap:round;}
+.empty h2{font-family:'Archivo Black',sans-serif;font-size:22px;color:rgba(247,242,232,.65);letter-spacing:-.01em;}
+.empty p{font-size:13px;color:rgba(247,242,232,.35);max-width:200px;line-height:1.6;}
+
+/* ── Stats ── */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;}
+.sc{padding:16px;}
+.sc-l{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(247,242,232,.38);margin-bottom:6px;}
+.sc-v{font-family:'Archivo Black',sans-serif;font-size:40px;color:var(--cr);line-height:1;letter-spacing:-.03em;}
+.sc-v .u{font-family:inherit;font-size:15px;font-weight:400;color:rgba(247,242,232,.3);margin-left:1px;letter-spacing:0;}
+.sc-s{font-size:11px;color:rgba(247,242,232,.38);margin-top:4px;}
+
+/* Radar chart */
+.radar-wrap{padding:20px;margin-bottom:11px;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.radar-title{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(247,242,232,.38);align-self:flex-start;}
+.radar-svg{width:220px;height:220px;overflow:visible;}
+
+/* Bars */
+.rbars{padding:16px;margin-bottom:11px;}
+.rbars-t{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(247,242,232,.38);margin-bottom:14px;}
+.rrow{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.rl{font-size:12px;font-weight:600;color:var(--cr);width:60px;flex:0 0 auto;}
+.rt{flex:1;height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;}
+.rf{height:100%;background:var(--gl);border-radius:3px;transition:width .7s cubic-bezier(.34,1.56,.64,1);}
+.rv{font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--gl);width:22px;text-align:right;flex:0 0 auto;}
+
+/* Highlight cards */
+.hcard{padding:15px;margin-bottom:11px;position:relative;overflow:hidden;}
+.hcard.best-c{border-color:rgba(45,158,88,.4);background:rgba(45,158,88,.08);}
+.hcard.worst-c{border-color:rgba(184,50,40,.25);background:rgba(184,50,40,.055);}
+.hbadge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:9px;margin-bottom:9px;}
+.hbest{background:rgba(45,158,88,.2);color:var(--gl);}
+.hworst{background:rgba(184,50,40,.15);color:var(--re);}
+.hm{font-family:'Archivo Black',sans-serif;font-size:22px;color:var(--cr);letter-spacing:-.01em;}
+.hd{font-size:12px;color:rgba(247,242,232,.4);margin-top:3px;}
+.hs{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-family:'Archivo Black',sans-serif;font-size:54px;color:var(--gl);line-height:1;letter-spacing:-.04em;opacity:.85;}
+.worst-c .hs{color:var(--re);}
+
+/* Calendar */
+.cal{padding:16px;margin-bottom:11px;}
+.cal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.cal-t{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(247,242,232,.38);}
+.cal-m{font-size:13px;font-weight:700;color:var(--gl);}
+.wdays{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:5px;}
+.wd{text-align:center;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(247,242,232,.25);}
+.cdays{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cd{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:rgba(247,242,232,.3);position:relative;}
+.cd.has{background:rgba(45,158,88,.15);color:var(--cr);font-weight:700;}
+.cd.has::after{content:'';position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--gl);}
+.cd.today{background:var(--y);color:var(--dk);font-weight:700;}
+.cd.today::after{background:var(--dk);}
+
+/* ── Sheet ── */
+.bd{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,0);pointer-events:none;transition:background .38s;}
+.bd.on{pointer-events:auto;background:rgba(0,0,0,.6);}
+.sheet{
+  position:fixed;bottom:0;left:0;right:0;max-height:95dvh;z-index:100;
+  background:rgba(247,242,232,.98);
+  backdrop-filter:blur(50px) saturate(200%);
+  -webkit-backdrop-filter:blur(50px) saturate(200%);
+  border-radius:28px 28px 0 0;
+  border-top:1px solid rgba(255,255,255,.7);
+  box-shadow:0 -10px 50px rgba(0,0,0,.4);
+  transform:translateY(100%);
+  transition:transform .42s cubic-bezier(.32,.72,0,1);
+  display:flex;flex-direction:column;
+  touch-action:none;
+}
+.sheet.open{transform:translateY(0);}
+.handle{width:36px;height:4px;background:rgba(13,31,20,.14);border-radius:2px;margin:10px auto 0;flex:0 0 auto;cursor:grab;}
+.shead{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;flex:0 0 auto;border-bottom:1px solid rgba(13,31,20,.07);}
+.shead h2{font-family:'Archivo Black',sans-serif;font-size:20px;color:var(--dk);letter-spacing:-.01em;}
+.sbtns{display:flex;gap:8px;align-items:center;}
+.btn-del{background:rgba(184,50,40,.1);border:none;border-radius:10px;width:36px;height:36px;display:none;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .1s,background .15s;}
+.btn-del.show{display:flex;}
+.btn-del:active{transform:scale(.92);background:rgba(184,50,40,.2);}
+.btn-del svg{width:16px;height:16px;stroke:var(--re);fill:none;stroke-width:2;stroke-linecap:round;}
+.btn-c{background:rgba(13,31,20,.07);border:none;border-radius:10px;padding:7px 13px;font-size:13px;font-weight:600;color:rgba(13,31,20,.55);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .1s;}
+.btn-c:active{transform:scale(.95);}
+.btn-s{background:var(--g);border:none;border-radius:10px;padding:7px 13px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .1s,background .15s;}
+.btn-s:active{transform:scale(.95);background:var(--gd);}
+.sbody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 18px calc(env(safe-area-inset-bottom) + 24px);}
+
+/* Form */
+.fsec{margin-bottom:22px;}
+.fst{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--g);margin-bottom:10px;}
+
+/* Photo */
+.pbox{
+  width:100%;aspect-ratio:4/3;border-radius:18px;overflow:hidden;
+  background:rgba(26,107,58,.05);border:2px dashed rgba(26,107,58,.18);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;cursor:pointer;position:relative;
+  transition:border-color .2s,background .2s;-webkit-tap-highlight-color:transparent;
+}
+.pbox:active{background:rgba(26,107,58,.09);}
+.pbox.has{border-style:solid;border-color:rgba(26,107,58,.25);}
+.pbox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.pbox svg{width:34px;height:34px;stroke:rgba(26,107,58,.28);fill:none;stroke-width:1.5;}
+.pbox>span{font-size:13px;font-weight:600;color:rgba(26,107,58,.4);}
+.pbox input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.pchange{position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.44);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;color:#fff;pointer-events:none;display:none;}
+.pbox.has .pchange{display:block;}
+
+/* Inputs */
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.fi{display:flex;flex-direction:column;gap:4px;}
+.fi label{font-size:11px;font-weight:600;color:rgba(13,31,20,.4);letter-spacing:.04em;}
+.fi input,.fi textarea{
+  background:rgba(13,31,20,.055);border:1.5px solid rgba(13,31,20,.08);border-radius:12px;
+  padding:11px 13px;font-size:15px;font-weight:500;color:var(--dk);
+  font-family:inherit;-webkit-appearance:none;outline:none;
+  transition:border-color .2s,background .2s;width:100%;
+}
+.fi input:focus,.fi textarea:focus{border-color:var(--g);background:rgba(26,107,58,.04);}
+.fi textarea{resize:none;min-height:80px;}
+.aw{position:relative;}
+.au{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:600;color:rgba(13,31,20,.28);pointer-events:none;}
+.aw input{padding-right:32px;}
+.ratio-display{font-size:11px;font-weight:700;color:var(--g);text-align:center;margin-top:8px;min-height:16px;letter-spacing:.04em;}
+
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{
+  padding:9px 15px;border-radius:12px;
+  background:rgba(13,31,20,.06);border:1.5px solid rgba(13,31,20,.07);
+  font-size:13px;font-weight:600;color:rgba(13,31,20,.5);
+  cursor:pointer;transition:background .15s,border-color .15s,color .15s,transform .1s;
+  -webkit-tap-highlight-color:transparent;
+}
+.chip:active{transform:scale(.93);}
+.chip.on{background:var(--g);border-color:var(--g);color:#fff;}
+
+/* Sliders */
+.sliders{display:flex;flex-direction:column;gap:18px;}
+.sl{display:flex;flex-direction:column;gap:8px;}
+.sl-h{display:flex;justify-content:space-between;align-items:center;}
+.sl-l{font-size:14px;font-weight:600;color:var(--dk);}
+.sl-l.ovr{font-weight:700;color:var(--yd);}
+.sl-v{font-family:'Archivo Black',sans-serif;font-size:20px;color:var(--g);min-width:32px;text-align:right;}
+.sl-v.ovr{font-size:26px;color:var(--yd);}
+.sl-sep{padding-top:16px;border-top:1px solid rgba(13,31,20,.07);margin-top:4px;}
+
+input[type=range]{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:5px;border-radius:3px;outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:28px;height:28px;border-radius:50%;
+  background:var(--g);border:3px solid #fff;
+  box-shadow:0 2px 10px rgba(26,107,58,.45),0 1px 4px rgba(0,0,0,.2);
+  cursor:pointer;transition:transform .12s cubic-bezier(.34,1.56,.64,1);
+}
+input[type=range]::-webkit-slider-thumb:active{transform:scale(1.32);}
+input[type=range].ovr::-webkit-slider-thumb{background:var(--yd);box-shadow:0 2px 10px rgba(201,162,0,.5);}
+
+/* Entry animation */
+@keyframes up{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.ecard{animation:up .3s ease backwards;}
+</style>
+</head>
+<body>
+
+<div class="bg">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+
+<div id="app">
+  <div class="vp">
+    <div class="track" id="track">
+
+      <!-- Page 0 · Journal -->
+      <div class="page" id="p0">
+        <div class="ph">
+          <div><h1>Diário</h1><p id="jct">Nenhum registro</p></div>
+          <button class="fab" onclick="openSheet()">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </div>
+        <div class="elist" id="elist"></div>
+        <div class="empty" id="e0">
+          <svg viewBox="0 0 64 64"><path d="M22 20h20v24a10 10 0 0 1-10 10h0a10 10 0 0 1-10-10V20z"/><path d="M42 26h5a8 8 0 0 1 0 16h-5"/><path d="M27 14c-2 4 2 6 0 10M37 12c-2 4 2 6 0 10"/></svg>
+          <h2>Nenhum registro ainda</h2>
+          <p>Toque em + para adicionar sua primeira xícara</p>
+        </div>
+      </div>
+
+      <!-- Page 1 · Insights -->
+      <div class="page" id="p1">
+        <div class="ph">
+          <div><h1>Insights</h1><p>Seu perfil de sabor</p></div>
+        </div>
+        <div class="empty" id="e1">
+          <svg viewBox="0 0 64 64"><path d="M8 52l14-18 10 10L44 20l12 16"/></svg>
+          <h2>Sem dados ainda</h2>
+          <p>Adicione registros para ver suas estatísticas</p>
+        </div>
+        <div id="stats"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab on" id="t0" onclick="go(0)">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 11h16M4 16h10"/><circle cx="19" cy="17" r="3"/></svg>
+      <span>Diário</span>
+    </button>
+    <button class="tab" id="t1" onclick="go(1)">
+      <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-5 4 4 5-9"/></svg>
+      <span>Insights</span>
+    </button>
+  </nav>
+</div>
+
+<!-- Sheet -->
+<div class="bd" id="bd" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="handle" id="handle"></div>
+  <div class="shead">
+    <h2 id="stitle">Nova Xícara</h2>
+    <div class="sbtns">
+      <button class="btn-del" id="del-btn" onclick="deleteEntry()">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+      </button>
+      <button class="btn-c" onclick="closeSheet()">Cancelar</button>
+      <button class="btn-s" onclick="save()">Salvar</button>
+    </div>
+  </div>
+  <div class="sbody">
+
+    <div class="fsec">
+      <div class="fst">Foto</div>
+      <div class="pbox" id="pbox">
+        <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span>Adicionar foto</span>
+        <input type="file" accept="image/*" onchange="onPhoto(event)">
+        <div class="pchange">Trocar</div>
+      </div>
+    </div>
+
+    <div class="fsec">
+      <div class="fst">Data e Hora</div>
+      <div class="r2">
+        <div class="fi"><label>Data</label><input type="date" id="idate"></div>
+        <div class="fi"><label>Hora</label><input type="time" id="itime"></div>
+      </div>
+    </div>
+
+    <div class="fsec">
+      <div class="fst">Método de Preparo</div>
+      <div class="chips" id="mc">
+        <button class="chip" data-v="V60"          onclick="selChip(this,'m')">V60</button>
+        <button class="chip" data-v="Chemex"       onclick="selChip(this,'m')">Chemex</button>
+        <button class="chip" data-v="AeroPress"    onclick="selChip(this,'m')">AeroPress</button>
+        <button class="chip" data-v="French Press" onclick="selChip(this,'m')">French Press</button>
+        <button class="chip" data-v="Moka"         onclick="selChip(this,'m')">Moka</button>
+        <button class="chip" data-v="Espresso"     onclick="selChip(this,'m')">Espresso</button>
+        <button class="chip" data-v="Cold Brew"    onclick="selChip(this,'m')">Cold Brew</button>
+        <button class="chip" data-v="Livre"        onclick="selChip(this,'m')">Livre</button>
+      </div>
+    </div>
+
+    <div class="fsec">
+      <div class="fst">Técnica</div>
+      <div class="chips" id="tc">
+        <button class="chip" data-v="James Hoffman" onclick="selChip(this,'t')">James Hoffman</button>
+        <button class="chip" data-v="4:6 Kasuya"    onclick="selChip(this,'t')">4:6 (Kasuya)</button>
+        <button class="chip" data-v="Scott Rao"     onclick="selChip(this,'t')">Scott Rao</button>
+        <button class="chip" data-v="Osmotic Flow"  onclick="selChip(this,'t')">Osmotic Flow</button>
+        <button class="chip" data-v="Livre"         onclick="selChip(this,'t')">Livre</button>
+      </div>
+    </div>
+
+    <div class="fsec">
+      <div class="fst">Quantidades</div>
+      <div class="r2">
+        <div class="fi"><label>Café</label><div class="aw"><input type="number" id="icf" placeholder="15" min="0" max="200" step="0.5" oninput="updateRatio()"><span class="au">g</span></div></div>
+        <div class="fi"><label>Água</label><div class="aw"><input type="number" id="iwt" placeholder="250" min="0" max="5000" step="5" oninput="updateRatio()"><span class="au">g</span></div></div>
+      </div>
+      <div class="ratio-display" id="ratio"></div>
+      <div style="margin-top:10px">
+        <div class="fi"><label>Tempo de Preparo</label><input type="text" id="ibt" placeholder="3:00"></div>
+      </div>
+    </div>
+
+    <div class="fsec">
+      <div class="fst">Avaliação dos Sabores · 0 – 5</div>
+      <div class="sliders">
+        <div class="sl">
+          <div class="sl-h"><span class="sl-l">Amargor</span><span class="sl-v" id="vb">0</span></div>
+          <input type="range" min="0" max="5" step=".5" value="0" id="sb" oninput="sv('b')">
+        </div>
+        <div class="sl">
+          <div class="sl-h"><span class="sl-l">Doçura</span><span class="sl-v" id="vd">0</span></div>
+          <input type="range" min="0" max="5" step=".5" value="0" id="sd" oninput="sv('d')">
+        </div>
+        <div class="sl">
+          <div class="sl-h"><span class="sl-l">Acidez</span><span class="sl-v" id="va">0</span></div>
+          <input type="range" min="0" max="5" step=".5" value="0" id="sa" oninput="sv('a')">
+        </div>
+        <div class="sl">
+          <div class="sl-h"><span class="sl-l">Corpo</span><span class="sl-v" id="vc">0</span></div>
+          <input type="range" min="0" max="5" step=".5" value="0" id="sc" oninput="sv('c')">
+        </div>
+        <div class="sl sl-sep">
+          <div class="sl-h"><span class="sl-l ovr">Nota Geral</span><span class="sl-v ovr" id="vo">0</span></div>
+          <input type="range" class="ovr" min="0" max="5" step=".5" value="0" id="so" oninput="sv('o')">
+        </div>
+      </div>
+    </div>
+
+    <div class="fsec">
+      <div class="fst">Notas</div>
+      <div class="fi"><textarea id="in" placeholder="Aromas, texturas, impressões…"></textarea></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Data ──
+let entries=[];
+let pg=0,eid=null,selM='',selT='',photo=null;
+try{entries=JSON.parse(localStorage.getItem('cbj')||'[]');}catch(e){entries=[];}
+
+// ── Slider fill ──
+function updateSliderFill(el){
+  const v=(el.value-el.min)/(el.max-el.min)*100;
+  const isOvr=el.classList.contains('ovr');
+  const fg=isOvr?'var(--yd)':'var(--g)';
+  const bg='rgba(13,31,20,.1)';
+  el.style.background=`linear-gradient(to right,${fg} 0%,${fg} ${v}%,${bg} ${v}%,${bg} 100%)`;
+}
+document.querySelectorAll('input[type=range]').forEach(el=>{
+  updateSliderFill(el);
+  el.addEventListener('input',()=>updateSliderFill(el));
+});
+
+// ── Navigation ──
+function go(n){
+  pg=n;
+  document.getElementById('track').style.transform=n?'translateX(-50%)':'translateX(0)';
+  document.getElementById('t0').classList.toggle('on',n===0);
+  document.getElementById('t1').classList.toggle('on',n===1);
+  if(n===1)renderStats();
+}
+let sx=0,sy=0;
+document.querySelector('.vp').addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+document.querySelector('.vp').addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+  if(Math.abs(dx)>Math.abs(dy)+10&&Math.abs(dx)>50){if(dx<0&&pg===0)go(1);else if(dx>0&&pg===1)go(0);}
+},{passive:true});
+
+// ── Sheet swipe-to-dismiss ──
+let dragY=0,dragging=false;
+const sheetEl=document.getElementById('sheet');
+document.getElementById('handle').addEventListener('touchstart',e=>{
+  dragging=true;dragY=e.touches[0].clientY;sheetEl.style.transition='none';
+},{passive:true});
+window.addEventListener('touchmove',e=>{
+  if(!dragging)return;
+  const dy=e.touches[0].clientY-dragY;
+  if(dy>0)sheetEl.style.transform=`translateY(${dy}px)`;
+},{passive:true});
+window.addEventListener('touchend',e=>{
+  if(!dragging)return;dragging=false;
+  const dy=e.changedTouches[0].clientY-dragY;
+  sheetEl.style.transition='';
+  if(dy>130)closeSheet();else sheetEl.style.transform='';
+},{passive:true});
+
+// ── Sheet open/close ──
+function openSheet(id=null){
+  eid=id;resetForm();
+  if(id){
+    const e=entries.find(x=>x.id===id);
+    if(e)fillForm(e);
+    document.getElementById('stitle').textContent='Editar Xícara';
+    document.getElementById('del-btn').classList.add('show');
+  }else{
+    document.getElementById('stitle').textContent='Nova Xícara';
+    document.getElementById('del-btn').classList.remove('show');
+    const now=new Date();
+    document.getElementById('idate').value=now.toISOString().slice(0,10);
+    document.getElementById('itime').value=now.toTimeString().slice(0,5);
+  }
+  sheetEl.classList.add('open');
+  document.getElementById('bd').classList.add('on');
+}
+function closeSheet(){
+  sheetEl.classList.remove('open');
+  document.getElementById('bd').classList.remove('on');
+  sheetEl.style.transform='';
+}
+
+function resetForm(){
+  selM='';selT='';photo=null;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  ['b','d','a','c','o'].forEach(k=>{
+    const sl=document.getElementById('s'+k);
+    sl.value=0;updateSliderFill(sl);
+    document.getElementById('v'+k).textContent='0';
+  });
+  ['idate','itime','icf','iwt','ibt','in'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ratio').textContent='';
+  const pb=document.getElementById('pbox');pb.classList.remove('has');
+  const img=pb.querySelector('img');if(img)img.remove();
+}
+
+function fillForm(e){
+  const dt=new Date(e.date);
+  document.getElementById('idate').value=dt.toISOString().slice(0,10);
+  document.getElementById('itime').value=dt.toTimeString().slice(0,5);
+  document.getElementById('icf').value=e.coffee||'';
+  document.getElementById('iwt').value=e.water||'';
+  document.getElementById('ibt').value=e.brewTime||'';
+  document.getElementById('in').value=e.notes||'';
+  updateRatio();
+  if(e.method){selM=e.method;document.querySelectorAll('#mc .chip').forEach(c=>c.classList.toggle('on',c.dataset.v===e.method));}
+  if(e.technique){selT=e.technique;document.querySelectorAll('#tc .chip').forEach(c=>c.classList.toggle('on',c.dataset.v===e.technique));}
+  if(e.photo){
+    photo=e.photo;const pb=document.getElementById('pbox');pb.classList.add('has');
+    let img=document.createElement('img');img.src=e.photo;pb.prepend(img);
+  }
+  const r=e.ratings||{};
+  [['b','bitterness'],['d','sweetness'],['a','acidity'],['c','body'],['o','overall']].forEach(([k,rk])=>{
+    const v=r[rk]??0;
+    const sl=document.getElementById('s'+k);sl.value=v;updateSliderFill(sl);
+    document.getElementById('v'+k).textContent=v;
+  });
+}
+
+// ── Photo ──
+function onPhoto(e){
+  const f=e.target.files[0];if(!f)return;
+  const fr=new FileReader();
+  fr.onload=ev=>{
+    photo=ev.target.result;
+    const pb=document.getElementById('pbox');pb.classList.add('has');
+    let img=pb.querySelector('img');
+    if(!img){img=document.createElement('img');pb.prepend(img);}
+    img.src=photo;
+  };
+  fr.readAsDataURL(f);
+}
+
+// ── Chips ──
+function selChip(el,type){
+  const g=type==='m'?'mc':'tc';
+  document.querySelectorAll('#'+g+' .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  if(type==='m')selM=el.dataset.v;else selT=el.dataset.v;
+}
+
+// ── Sliders ──
+function sv(k){document.getElementById('v'+k).textContent=document.getElementById('s'+k).value;}
+
+// ── Ratio ──
+function updateRatio(){
+  const cf=parseFloat(document.getElementById('icf').value);
+  const wt=parseFloat(document.getElementById('iwt').value);
+  const el=document.getElementById('ratio');
+  if(cf&&wt){const r=(wt/cf).toFixed(1);el.textContent=`Proporção 1 : ${r}`;}
+  else el.textContent='';
+}
+
+// ── Save ──
+function save(){
+  const d=document.getElementById('idate').value;
+  if(!d){alert('Informe a data.');return;}
+  const t=document.getElementById('itime').value||'00:00';
+  const entry={
+    id:eid||('cb'+Date.now()),
+    date:new Date(d+'T'+t).toISOString(),
+    photo:photo,method:selM,technique:selT,
+    brewTime:document.getElementById('ibt').value,
+    coffee:parseFloat(document.getElementById('icf').value)||null,
+    water:parseFloat(document.getElementById('iwt').value)||null,
+    notes:document.getElementById('in').value.trim(),
+    ratings:{
+      bitterness:+document.getElementById('sb').value,
+      sweetness:+document.getElementById('sd').value,
+      acidity:+document.getElementById('sa').value,
+      body:+document.getElementById('sc').value,
+      overall:+document.getElementById('so').value,
+    }
+  };
+  if(eid){const i=entries.findIndex(x=>x.id===eid);if(i>=0)entries[i]=entry;}
+  else entries.unshift(entry);
+  persist();closeSheet();renderJournal();
+}
+
+// ── Delete ──
+function deleteEntry(){
+  if(!eid)return;
+  if(!confirm('Remover este registro?'))return;
+  entries=entries.filter(x=>x.id!==eid);
+  persist();closeSheet();renderJournal();
+}
+
+function persist(){
+  try{localStorage.setItem('cbj',JSON.stringify(entries));}
+  catch(e){localStorage.setItem('cbj',JSON.stringify(entries.map(x=>({...x,photo:null}))));}
+}
+
+// ── Helpers ──
+function fmtD(iso){return new Date(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});}
+function fmtT(iso){return new Date(iso).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+function bw(){
+  if(entries.length<2)return{best:null,worst:null};
+  const s=[...entries].sort((a,b)=>b.ratings.overall-a.ratings.overall);
+  return{best:s[0].id,worst:s[s.length-1].id};
+}
+function dots(v,max=5){return Array.from({length:max},(_,i)=>`<div class="d${i<Math.round(v)?' on':''}"></div>`).join('');}
+function avg(k){if(!entries.length)return 0;return(entries.reduce((s,e)=>s+(e.ratings[k]||0),0)/entries.length).toFixed(1);}
+
+// ── Render Journal ──
+function renderJournal(){
+  const el=document.getElementById('elist'),em=document.getElementById('e0'),ct=document.getElementById('jct');
+  const n=entries.length;
+  ct.textContent=n===0?'Nenhum registro':n===1?'1 registro':`${n} registros`;
+  if(!n){el.innerHTML='';em.classList.add('show');return;}
+  em.classList.remove('show');
+  const{best,worst}=bw();
+  el.innerHTML=entries.map((e,i)=>{
+    const iB=e.id===best,iW=e.id===worst;
+    const hasPhoto=!!e.photo;
+    const photoHtml=hasPhoto
+      ?`<div class="ephoto"><img src="${e.photo}" alt=""></div>`
+      :`<div class="ephoto"><div class="ephoto-placeholder"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div></div>`;
+    const specs=[e.coffee?`${e.coffee}g café`:'',e.water?`${e.water}g água`:'',e.brewTime||''].filter(Boolean);
+    const ratioStr=e.coffee&&e.water?`1:${(e.water/e.coffee).toFixed(1)}`:'';
+    const badgeHtml=iB?'<span class="badge bb">★ Melhor</span>':iW?'<span class="badge bw">▾ Pior</span>':'';
+    return`<div class="glass ecard${iB?' best':iW?' worst':''}${hasPhoto?'':' eno-photo'}" onclick="openSheet('${e.id}')" style="animation-delay:${i*.07}s">
+${photoHtml}
+<div class="einfo">
+  <div class="etop">
+    <div><div class="emethod">${e.method||'Método Livre'}</div>${e.technique?`<div class="etech">${e.technique}</div>`:''}</div>
+    <div class="escore-big"><span class="n">${e.ratings.overall}</span><span class="m">/5</span></div>
+  </div>
+  <div class="emeta">
+    <span class="etag">${fmtD(e.date)} · ${fmtT(e.date)}</span>
+    ${specs.map(s=>`<span class="etag">${s}</span>`).join('')}
+    ${ratioStr?`<span class="etag">1:${(e.water/e.coffee).toFixed(1)}</span>`:''}
+  </div>
+  <div class="ebottom">
+    <div class="edots">
+      <div class="edg"><span>Amargor</span><div class="dd">${dots(e.ratings.bitterness)}</div></div>
+      <div class="edg"><span>Doçura</span><div class="dd">${dots(e.ratings.sweetness)}</div></div>
+      <div class="edg"><span>Acidez</span><div class="dd">${dots(e.ratings.acidity)}</div></div>
+      <div class="edg"><span>Corpo</span><div class="dd">${dots(e.ratings.body)}</div></div>
+    </div>
+    ${badgeHtml}
+  </div>
+</div>
+</div>`;
+  }).join('');
+}
+
+// ── Radar Chart ──
+function radarSVG(data){
+  const cx=110,cy=110,maxR=78;
+  const cats=[
+    {label:'Amargor',angle:-90,key:'bitterness'},
+    {label:'Doçura',angle:0,key:'sweetness'},
+    {label:'Acidez',angle:90,key:'acidity'},
+    {label:'Corpo',angle:180,key:'body'},
+  ];
+  const rad=a=>a*Math.PI/180;
+  const pt=(a,r)=>({x:cx+r*Math.cos(rad(a)),y:cy+r*Math.sin(rad(a))});
+
+  const grid=[1,2,3,4,5].map(l=>{
+    const r=l/5*maxR;
+    const pts=cats.map(c=>pt(c.angle,r));
+    return`<polygon points="${pts.map(p=>`${p.x},${p.y}`).join(' ')}" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="1"/>`;
+  }).join('');
+
+  const axes=cats.map(c=>{
+    const p=pt(c.angle,maxR);
+    return`<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="rgba(255,255,255,.08)" stroke-width="1"/>`;
+  }).join('');
+
+  const vals=cats.map(c=>(data[c.key]||0)/5*maxR);
+  const dataPts=cats.map((c,i)=>{const p=pt(c.angle,vals[i]);return`${p.x},${p.y}`;}).join(' ');
+
+  const labels=cats.map(c=>{
+    const p=pt(c.angle,maxR+22);
+    return`<text x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="700" fill="rgba(247,242,232,.55)" font-family="'Space Grotesk',sans-serif">${c.label}</text>`;
+  }).join('');
+
+  const dotsPts=cats.map((c,i)=>{const p=pt(c.angle,vals[i]);return`<circle cx="${p.x}" cy="${p.y}" r="4" fill="var(--gl)"/>`;}).join('');
+
+  return`<svg class="radar-svg" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+${grid}${axes}
+<polygon points="${dataPts}" fill="rgba(45,158,88,.2)" stroke="var(--gl)" stroke-width="2" stroke-linejoin="round"/>
+${dotsPts}${labels}
+</svg>`;
+}
+
+// ── Render Stats ──
+function renderStats(){
+  const el=document.getElementById('stats'),em=document.getElementById('e1');
+  if(!entries.length){em.classList.add('show');el.innerHTML='';return;}
+  em.classList.remove('show');
+  const{best,worst}=bw();
+  const be=entries.find(e=>e.id===best),we=entries.find(e=>e.id===worst);
+  const avgs={bitterness:+avg('bitterness'),sweetness:+avg('sweetness'),acidity:+avg('acidity'),body:+avg('body'),overall:+avg('overall')};
+  const cats=[
+    {k:'bitterness',l:'Amargor'},{k:'sweetness',l:'Doçura'},
+    {k:'acidity',l:'Acidez'},{k:'body',l:'Corpo'},{k:'overall',l:'Geral'},
+  ];
+  const bars=cats.map(c=>{
+    const v=avg(c.k);
+    return`<div class="rrow"><span class="rl">${c.l}</span><div class="rt"><div class="rf" style="width:${(v/5*100).toFixed(1)}%"></div></div><span class="rv">${v}</span></div>`;
+  }).join('');
+  const now=new Date(),yr=now.getFullYear(),mo=now.getMonth(),td=now.getDate();
+  const fd=new Date(yr,mo,1).getDay(),dim=new Date(yr,mo+1,0).getDate();
+  const eDays=new Set(entries.filter(e=>{const d=new Date(e.date);return d.getFullYear()===yr&&d.getMonth()===mo;}).map(e=>new Date(e.date).getDate()));
+  const wdays=['D','S','T','Q','Q','S','S'].map(d=>`<div class="wd">${d}</div>`).join('');
+  let cells=Array(fd).fill('<div></div>');
+  for(let d=1;d<=dim;d++){
+    const cls=d===td?'today':eDays.has(d)?'has':'';
+    cells.push(`<div class="cd${cls?' '+cls:''}">${d}</div>`);
+  }
+  const mn=now.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  el.innerHTML=`
+<div class="sgrid">
+  <div class="glass sc"><div class="sc-l">Nota Média</div><div class="sc-v">${avg('overall')}<span class="u">/5</span></div><div class="sc-s">Nota geral</div></div>
+  <div class="glass sc"><div class="sc-l">Xícaras</div><div class="sc-v">${entries.length}</div><div class="sc-s">Registros</div></div>
+</div>
+<div class="glass radar-wrap">
+  <div class="radar-title">Perfil de Sabor · Média</div>
+  ${radarSVG(avgs)}
+</div>
+<div class="glass rbars"><div class="rbars-t">Média por Dimensão</div>${bars}</div>
+${be?`<div class="glass hcard best-c"><div class="hbadge hbest">★ Melhor Xícara</div><div class="hm">${be.method||'Método Livre'}</div><div class="hd">${fmtD(be.date)}${be.technique?' · '+be.technique:''}</div><div class="hs">${be.ratings.overall}</div></div>`:''}
+${(we&&we.id!==best)?`<div class="glass hcard worst-c"><div class="hbadge hworst">▾ Pior Xícara</div><div class="hm">${we.method||'Método Livre'}</div><div class="hd">${fmtD(we.date)}${we.technique?' · '+we.technique:''}</div><div class="hs">${we.ratings.overall}</div></div>`:''}
+<div class="glass cal"><div class="cal-h"><span class="cal-t">Registros do Mês</span><span class="cal-m">${mn}</span></div><div class="wdays">${wdays}</div><div class="cdays">${cells.join('')}</div></div>`;
+}
+
+// ── Init ──
+renderJournal();
+</script>
+</body>
+</html>

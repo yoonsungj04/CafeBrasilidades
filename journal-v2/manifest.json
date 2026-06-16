@@ -1,0 +1,13 @@
+{
+  "name": "Café Brasilidades · Diário",
+  "short_name": "Brasilidades",
+  "description": "Diário de café especial — registre, avalie e evolua.",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#050f07",
+  "theme_color": "#050f07",
+  "icons": [
+    { "src": "../logobrasilidades.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
