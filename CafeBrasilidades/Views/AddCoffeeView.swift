@@ -168,10 +168,7 @@ struct AddCoffeeView: View {
     }
 
     private func saveEntry() {
-        var imagePath: String?
-        if let img = selectedImage, let data = img.jpegData(compressionQuality: 0.82) {
-            imagePath = store.saveImage(data)
-        }
+        let imagePath = selectedImage.flatMap { store.saveImage($0) }
         store.add(CoffeeEntry(cafeName: cafeName.trimmingCharacters(in: .whitespaces), imagePath: imagePath))
         dismiss()
     }

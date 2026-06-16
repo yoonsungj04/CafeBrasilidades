@@ -18,6 +18,9 @@ struct PhotoCardView: View {
     // Context menu long-press
     @State private var showDelete = false
 
+    // Decoded once and cached — avoids re-decoding from disk on every animation tick
+    @State private var loadedImage: UIImage?
+
     private let cardWidth: CGFloat = 152
     private var cardHeight: CGFloat { cardWidth * (4.0 / 3.0) }
 
@@ -54,6 +57,12 @@ struct PhotoCardView: View {
             }
             .animation(.spring(response: 0.38, dampingFraction: 0.62), value: isDragging)
             .onAppear { startFloating() }
+            .task(id: entry.imagePath) {
+                guard let path = entry.imagePath else { return }
+                loadedImage = await Task.detached {
+                    UIImage(contentsOfFile: path)
+                }.value
+            }
     }
 
     // MARK: Card visual
@@ -62,7 +71,7 @@ struct PhotoCardView: View {
         ZStack(alignment: .bottom) {
             // Photo or soft placeholder
             Group {
-                if let path = entry.imagePath, let uiImg = UIImage(contentsOfFile: path) {
+                if let uiImg = loadedImage {
                     Image(uiImage: uiImg)
                         .resizable()
                         .scaledToFill()

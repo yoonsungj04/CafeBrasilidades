@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import UIKit
 
 struct CoffeeEntry: Identifiable, Codable {
     var id = UUID()
@@ -55,7 +56,13 @@ class CoffeeStore {
         save()
     }
 
-    func saveImage(_ data: Data) -> String? {
+    /// Downsizes the image before saving so cards never decode multi-megapixel
+    /// camera photos at render time — this is what keeps drag/float animations smooth.
+    func saveImage(_ image: UIImage) -> String? {
+        let maxDimension: CGFloat = 900
+        let resized = image.resized(maxDimension: maxDimension)
+        guard let data = resized.jpegData(compressionQuality: 0.82) else { return nil }
+
         let filename = UUID().uuidString + ".jpg"
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let url = docs.appendingPathComponent(filename)
@@ -74,5 +81,22 @@ class CoffeeStore {
               let saved = try? JSONDecoder().decode([CoffeeEntry].self, from: data)
         else { return }
         entries = saved
+    }
+}
+
+extension UIImage {
+    /// Returns a copy scaled down so its longest side is at most `maxDimension`.
+    /// No-ops if the image is already smaller.
+    func resized(maxDimension: CGFloat) -> UIImage {
+        let longestSide = max(size.width, size.height)
+        guard longestSide > maxDimension else { return self }
+
+        let scale = maxDimension / longestSide
+        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
+
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        return renderer.image { _ in
+            draw(in: CGRect(origin: .zero, size: newSize))
+        }
     }
 }
