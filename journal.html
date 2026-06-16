@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Café Brasilidades · Diário</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green:       #1a6b3a;
+  --green-deep:  #0d3b21;
+  --green-light: #2d9e58;
+  --yellow:      #f5c800;
+  --yellow-dk:   #c9a200;
+  --cream:       #f7f2e8;
+  --dark:        #0d1f14;
+  --red:         #b83228;
+
+  --glass:       rgba(247,242,232,0.76);
+  --glass-b:     rgba(255,255,255,0.52);
+  --blur:        blur(24px) saturate(170%);
+
+  --nav-h:       calc(68px + env(safe-area-inset-bottom));
+  --safe-top:    calc(env(safe-area-inset-top) + 14px);
+}
+
+html, body { width:100%; height:100%; overflow:hidden; overscroll-behavior:none; }
+
+body {
+  font-family: 'Space Grotesk', -apple-system, system-ui, sans-serif;
+  background: linear-gradient(150deg, #061a0e 0%, #0d3b21 30%, #1a6b3a 65%, #245c32 100%);
+  min-height: 100dvh;
+}
+
+/* ── App shell ── */
+#app { position:fixed; inset:0; display:flex; flex-direction:column; }
+
+/* ── Pages ── */
+.vp { flex:1; overflow:hidden; position:relative; }
+.track {
+  display:flex; width:200%; height:100%;
+  transition: transform 0.42s cubic-bezier(0.32,0.72,0,1);
+  will-change: transform;
+}
+.page {
+  width:50%; height:100%;
+  overflow-y:auto; overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-y:contain;
+  padding: var(--safe-top) 16px calc(var(--nav-h) + 20px);
+}
+
+/* ── Bottom nav (liquid glass dark) ── */
+.tab-bar {
+  position:fixed; bottom:0; left:0; right:0;
+  height: var(--nav-h);
+  padding-bottom: env(safe-area-inset-bottom);
+  background: rgba(10,26,15,0.88);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  display:flex; align-items:flex-start; justify-content:center;
+  z-index:50;
+}
+.tab {
+  flex:1; max-width:180px; height:68px;
+  background:none; border:none; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:4px; -webkit-tap-highlight-color:transparent;
+}
+.tab svg {
+  width:24px; height:24px; fill:none;
+  stroke: rgba(247,242,232,0.38); stroke-width:2;
+  stroke-linecap:round; stroke-linejoin:round;
+  transition: stroke 0.2s;
+}
+.tab span {
+  font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+  color: rgba(247,242,232,0.38); transition: color 0.2s;
+}
+.tab.on svg  { stroke: var(--yellow); }
+.tab.on span { color: var(--yellow); }
+
+/* ── Page header ── */
+.ph {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  margin-bottom:18px; padding:0 2px;
+}
+.ph-left h1 {
+  font-family:'Archivo Black',sans-serif;
+  font-size:32px; color:var(--cream); letter-spacing:-0.02em; line-height:1;
+}
+.ph-left p { font-size:12px; color:rgba(247,242,232,0.5); font-weight:500; margin-top:3px; }
+
+/* ── FAB ── */
+.fab {
+  width:50px; height:50px; border-radius:16px;
+  background:var(--yellow); border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 20px rgba(245,200,0,0.5),0 2px 8px rgba(0,0,0,0.28);
+  transition:transform 0.14s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.14s;
+  -webkit-tap-highlight-color:transparent; flex:0 0 auto;
+}
+.fab:active { transform:scale(0.9); box-shadow:0 2px 10px rgba(245,200,0,0.3); }
+.fab svg { width:22px; height:22px; stroke:var(--dark); stroke-width:2.5; stroke-linecap:round; fill:none; }
+
+/* ── Glass card ── */
+.card {
+  background:var(--glass);
+  backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--glass-b);
+  border-radius:20px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.1);
+  overflow:hidden;
+}
+
+/* ── Entry cards ── */
+.entries { display:flex; flex-direction:column; gap:11px; }
+
+.ecard { padding:15px; cursor:pointer; transition:transform 0.14s; -webkit-tap-highlight-color:transparent; }
+.ecard:active { transform:scale(0.98); }
+.ecard.is-best  { border-color:rgba(45,158,88,0.55); background:rgba(45,158,88,0.1); }
+.ecard.is-worst { border-color:rgba(184,50,40,0.28); background:rgba(184,50,40,0.055); }
+
+.ecard-top { display:flex; gap:12px; }
+
+.ethumb {
+  width:70px; height:70px; border-radius:13px; flex:0 0 auto;
+  background:rgba(26,107,58,0.12);
+  display:flex; align-items:center; justify-content:center; overflow:hidden;
+}
+.ethumb img { width:100%; height:100%; object-fit:cover; }
+.ethumb svg { width:26px; height:26px; stroke:rgba(26,107,58,0.35); fill:none; stroke-width:1.5; }
+
+.einfo { flex:1; min-width:0; }
+.edate { font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:rgba(13,31,20,0.45); margin-bottom:3px; }
+.emethod { font-family:'Archivo Black',sans-serif; font-size:18px; color:var(--dark); letter-spacing:-0.01em; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.etech { font-size:12px; font-weight:600; color:var(--green); margin-top:2px; }
+.echips { display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; }
+.echip { background:rgba(26,107,58,0.1); border-radius:7px; padding:3px 7px; font-size:11px; font-weight:600; color:var(--green); }
+
+.ebar {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:11px; padding-top:11px;
+  border-top:1px solid rgba(13,31,20,0.07);
+}
+.escore { display:flex; align-items:baseline; gap:3px; }
+.escore .n { font-family:'Archivo Black',sans-serif; font-size:28px; color:var(--green); line-height:1; }
+.escore .m { font-size:12px; color:rgba(13,31,20,0.38); }
+.edots { display:flex; gap:9px; align-items:center; }
+.edot-g { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.edot-g label { font-size:9px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:rgba(13,31,20,0.38); }
+.dots { display:flex; gap:2px; }
+.dot { width:5px; height:5px; border-radius:50%; background:rgba(26,107,58,0.18); }
+.dot.on { background:var(--green); }
+.badge {
+  font-size:9px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase;
+  padding:3px 8px; border-radius:7px;
+}
+.badge-best  { background:rgba(45,158,88,0.18); color:var(--green-light); }
+.badge-worst { background:rgba(184,50,40,0.12); color:var(--red); }
+
+/* ── Empty state ── */
+.empty {
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  padding:70px 20px; gap:12px; text-align:center;
+}
+.empty.show { display:flex; }
+.empty svg { width:60px; height:60px; stroke:rgba(247,242,232,0.3); fill:none; stroke-width:1.5; stroke-linecap:round; }
+.empty h2 { font-family:'Archivo Black',sans-serif; font-size:21px; color:rgba(247,242,232,0.75); letter-spacing:-0.01em; }
+.empty p  { font-size:13px; color:rgba(247,242,232,0.4); max-width:210px; line-height:1.5; }
+
+/* ── Stats page ── */
+.sgrid { display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-bottom:11px; }
+.scard { padding:15px; }
+.scard-lbl { font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:rgba(13,31,20,0.4); margin-bottom:5px; }
+.scard-val { font-family:'Archivo Black',sans-serif; font-size:38px; color:var(--dark); line-height:1; letter-spacing:-0.02em; }
+.scard-val .u { font-family:inherit; font-size:14px; font-weight:400; color:rgba(13,31,20,0.35); margin-left:2px; letter-spacing:0; }
+.scard-sub { font-size:11px; color:rgba(13,31,20,0.45); margin-top:4px; }
+
+.rbars { padding:15px; margin-bottom:11px; }
+.rbars-title { font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:rgba(13,31,20,0.4); margin-bottom:13px; }
+.rbar-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+.rbar-lbl { font-size:12px; font-weight:600; color:var(--dark); width:58px; flex:0 0 auto; }
+.rbar-track { flex:1; height:6px; background:rgba(26,107,58,0.12); border-radius:3px; overflow:hidden; }
+.rbar-fill { height:100%; background:var(--green); border-radius:3px; transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+.rbar-val { font-family:'Archivo Black',sans-serif; font-size:13px; color:var(--green); width:22px; text-align:right; flex:0 0 auto; }
+
+.hcard { padding:15px; margin-bottom:11px; position:relative; overflow:hidden; }
+.hcard.best-c  { border-color:rgba(45,158,88,0.45); background:rgba(45,158,88,0.09); }
+.hcard.worst-c { border-color:rgba(184,50,40,0.25); background:rgba(184,50,40,0.055); }
+.hbadge {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+  padding:4px 9px; border-radius:9px; margin-bottom:9px;
+}
+.hbadge.best  { background:rgba(45,158,88,0.18); color:var(--green-light); }
+.hbadge.worst { background:rgba(184,50,40,0.12); color:var(--red); }
+.hmethod { font-family:'Archivo Black',sans-serif; font-size:21px; color:var(--dark); letter-spacing:-0.01em; }
+.hdate { font-size:12px; color:rgba(13,31,20,0.45); margin-top:3px; }
+.hscore {
+  position:absolute; right:16px; top:50%; transform:translateY(-50%);
+  font-family:'Archivo Black',sans-serif; font-size:52px; color:var(--green);
+  line-height:1; letter-spacing:-0.04em; opacity:0.9;
+}
+.worst-c .hscore { color:var(--red); }
+
+/* Calendar */
+.cal { padding:15px; margin-bottom:11px; }
+.cal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:13px; }
+.cal-t { font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:rgba(13,31,20,0.4); }
+.cal-m { font-size:13px; font-weight:700; color:var(--green); }
+.wdays { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:5px; }
+.wday { text-align:center; font-size:9px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:rgba(13,31,20,0.3); }
+.cdays { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+.cday {
+  aspect-ratio:1; border-radius:8px; display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:500; color:rgba(13,31,20,0.35); position:relative;
+}
+.cday.has { background:rgba(26,107,58,0.11); color:var(--dark); font-weight:700; }
+.cday.has::after { content:''; position:absolute; bottom:3px; width:4px; height:4px; border-radius:50%; background:var(--green); }
+.cday.today { background:var(--yellow); color:var(--dark); font-weight:700; }
+.cday.today::after { background:var(--dark); }
+
+/* ── Sheet ── */
+.backdrop {
+  position:fixed; inset:0; z-index:90;
+  background:rgba(0,0,0,0); pointer-events:none;
+  transition:background 0.38s;
+}
+.backdrop.on { pointer-events:auto; background:rgba(0,0,0,0.52); }
+
+.sheet {
+  position:fixed; bottom:0; left:0; right:0;
+  max-height:94dvh;
+  background:rgba(247,242,232,0.97);
+  backdrop-filter:blur(40px) saturate(200%);
+  -webkit-backdrop-filter:blur(40px) saturate(200%);
+  border-radius:28px 28px 0 0;
+  border-top:1px solid rgba(255,255,255,0.65);
+  box-shadow:0 -8px 40px rgba(0,0,0,0.28);
+  z-index:100;
+  transform:translateY(100%);
+  transition:transform 0.42s cubic-bezier(0.32,0.72,0,1);
+  display:flex; flex-direction:column;
+}
+.sheet.open { transform:translateY(0); }
+
+.shandle { width:36px; height:4px; background:rgba(13,31,20,0.16); border-radius:2px; margin:10px auto 0; flex:0 0 auto; }
+
+.shead {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 18px 12px; flex:0 0 auto;
+  border-bottom:1px solid rgba(13,31,20,0.07);
+}
+.shead h2 { font-family:'Archivo Black',sans-serif; font-size:20px; color:var(--dark); letter-spacing:-0.01em; }
+.shead-btns { display:flex; gap:8px; }
+
+.btn-cancel {
+  background:rgba(13,31,20,0.07); border:none; border-radius:10px;
+  padding:7px 14px; font-size:13px; font-weight:600; color:rgba(13,31,20,0.55);
+  cursor:pointer; -webkit-tap-highlight-color:transparent;
+  transition:transform 0.1s,background 0.15s;
+}
+.btn-cancel:active { transform:scale(0.95); }
+
+.btn-save {
+  background:var(--green); border:none; border-radius:10px;
+  padding:7px 14px; font-size:13px; font-weight:700; color:#fff;
+  cursor:pointer; -webkit-tap-highlight-color:transparent;
+  transition:transform 0.1s,background 0.15s;
+}
+.btn-save:active { transform:scale(0.95); background:var(--green-deep); }
+
+.sbody {
+  flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  padding:16px 18px calc(env(safe-area-inset-bottom) + 24px);
+}
+
+/* Form */
+.fsec { margin-bottom:22px; }
+.fsec-title {
+  font-size:10px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--green); margin-bottom:10px;
+}
+
+.photo-box {
+  width:100%; aspect-ratio:4/3; border-radius:18px;
+  background:rgba(26,107,58,0.05); border:2px dashed rgba(26,107,58,0.2);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:8px; cursor:pointer; overflow:hidden; position:relative;
+  transition:border-color 0.2s,background 0.2s; -webkit-tap-highlight-color:transparent;
+}
+.photo-box.filled { border-style:solid; border-color:rgba(26,107,58,0.28); }
+.photo-box:active { background:rgba(26,107,58,0.09); }
+.photo-box img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.photo-box svg { width:34px; height:34px; stroke:rgba(26,107,58,0.3); fill:none; stroke-width:1.5; }
+.photo-box span { font-size:13px; font-weight:600; color:rgba(26,107,58,0.45); }
+.photo-box input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.photo-change {
+  position:absolute; bottom:10px; right:10px;
+  background:rgba(0,0,0,0.48); border-radius:8px;
+  padding:5px 10px; font-size:11px; font-weight:600; color:#fff;
+  pointer-events:none; display:none;
+}
+.photo-box.filled .photo-change { display:block; }
+
+.row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+.fi { display:flex; flex-direction:column; gap:4px; }
+.fi label { font-size:11px; font-weight:600; color:rgba(13,31,20,0.45); letter-spacing:0.04em; }
+.fi input, .fi textarea {
+  background:rgba(13,31,20,0.055); border:1.5px solid rgba(13,31,20,0.09);
+  border-radius:12px; padding:11px 13px;
+  font-size:15px; font-weight:500; color:var(--dark); font-family:inherit;
+  -webkit-appearance:none; outline:none;
+  transition:border-color 0.2s,background 0.2s; width:100%;
+}
+.fi input:focus, .fi textarea:focus {
+  border-color:var(--green); background:rgba(26,107,58,0.045);
+}
+.fi textarea { resize:none; min-height:78px; }
+
+.amt-wrap { position:relative; }
+.amt-unit {
+  position:absolute; right:13px; top:50%; transform:translateY(-50%);
+  font-size:13px; font-weight:600; color:rgba(13,31,20,0.3); pointer-events:none;
+}
+.amt-wrap input { padding-right:32px; }
+
+/* Chips */
+.chips { display:flex; flex-wrap:wrap; gap:8px; }
+.chip {
+  padding:9px 15px; border-radius:12px;
+  background:rgba(13,31,20,0.06); border:1.5px solid rgba(13,31,20,0.07);
+  font-size:13px; font-weight:600; color:rgba(13,31,20,0.5);
+  cursor:pointer; transition:background 0.15s,border-color 0.15s,color 0.15s,transform 0.1s;
+  -webkit-tap-highlight-color:transparent;
+}
+.chip:active { transform:scale(0.94); }
+.chip.on { background:var(--green); border-color:var(--green); color:#fff; }
+
+/* Sliders */
+.sliders { display:flex; flex-direction:column; gap:16px; }
+.sl { display:flex; flex-direction:column; gap:7px; }
+.sl-head { display:flex; justify-content:space-between; align-items:center; }
+.sl-lbl { font-size:14px; font-weight:600; color:var(--dark); }
+.sl-lbl.ovr { font-weight:700; color:var(--yellow-dk); }
+.sl-val { font-family:'Archivo Black',sans-serif; font-size:20px; color:var(--green); min-width:28px; text-align:right; }
+.sl-val.ovr { font-size:24px; color:var(--yellow-dk); }
+
+.sl-sep { border-top:1px solid rgba(13,31,20,0.07); padding-top:14px; margin-top:4px; }
+
+input[type=range] {
+  -webkit-appearance:none; appearance:none;
+  width:100%; height:6px; border-radius:3px;
+  background:rgba(26,107,58,0.14); outline:none; cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; appearance:none;
+  width:28px; height:28px; border-radius:50%;
+  background:var(--green); border:3px solid #fff;
+  box-shadow:0 2px 10px rgba(26,107,58,0.42),0 1px 4px rgba(0,0,0,0.18);
+  cursor:pointer; transition:transform 0.12s cubic-bezier(0.34,1.56,0.64,1);
+}
+input[type=range]::-webkit-slider-thumb:active { transform:scale(1.3); }
+input[type=range].ovr-range { background:rgba(201,162,0,0.18); }
+input[type=range].ovr-range::-webkit-slider-thumb {
+  background:var(--yellow-dk);
+  box-shadow:0 2px 10px rgba(201,162,0,0.5);
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.ecard { animation:fadeUp 0.32s ease backwards; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="vp">
+    <div class="track" id="track">
+
+      <!-- Page 0 · Journal -->
+      <div class="page" id="p0">
+        <div class="ph">
+          <div class="ph-left">
+            <h1>Diário</h1>
+            <p id="jcount">Nenhum registro</p>
+          </div>
+          <button class="fab" onclick="openSheet()">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </div>
+        <div class="entries" id="elist"></div>
+        <div class="empty" id="empty0">
+          <svg viewBox="0 0 64 64">
+            <path d="M20 22h24v20a12 12 0 0 1-12 12h0a12 12 0 0 1-12-12V22z"/>
+            <path d="M44 26h4a8 8 0 0 1 0 16h-4"/>
+            <path d="M26 16c-2 4 2 6 0 10M36 14c-2 4 2 6 0 10"/>
+          </svg>
+          <h2>Nenhum registro ainda</h2>
+          <p>Toque em + para adicionar sua primeira xícara</p>
+        </div>
+      </div>
+
+      <!-- Page 1 · Insights -->
+      <div class="page" id="p1">
+        <div class="ph">
+          <div class="ph-left">
+            <h1>Insights</h1>
+            <p>Seu perfil de sabor</p>
+          </div>
+        </div>
+        <div class="empty" id="empty1">
+          <svg viewBox="0 0 64 64">
+            <path d="M8 52l14-18 10 10L46 20l12 18"/>
+          </svg>
+          <h2>Sem dados ainda</h2>
+          <p>Adicione registros no diário para ver suas estatísticas</p>
+        </div>
+        <div id="stats"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <nav class="tab-bar">
+    <button class="tab on" id="t0" onclick="go(0)">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 11h16M4 16h10"/><circle cx="19" cy="17" r="3"/></svg>
+      <span>Diário</span>
+    </button>
+    <button class="tab" id="t1" onclick="go(1)">
+      <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-5 4 4 5-9"/></svg>
+      <span>Insights</span>
+    </button>
+  </nav>
+</div>
+
+<!-- Sheet -->
+<div class="backdrop" id="bd" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="shandle"></div>
+  <div class="shead">
+    <h2 id="stitle">Nova Xícara</h2>
+    <div class="shead-btns">
+      <button class="btn-cancel" onclick="closeSheet()">Cancelar</button>
+      <button class="btn-save" onclick="save()">Salvar</button>
+    </div>
+  </div>
+  <div class="sbody">
+
+    <!-- Photo -->
+    <div class="fsec">
+      <div class="fsec-title">Foto</div>
+      <div class="photo-box" id="pbox">
+        <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span>Adicionar foto</span>
+        <input type="file" accept="image/*" onchange="onPhoto(event)">
+        <div class="photo-change">Trocar</div>
+      </div>
+    </div>
+
+    <!-- Date & Time -->
+    <div class="fsec">
+      <div class="fsec-title">Data e Hora</div>
+      <div class="row2">
+        <div class="fi"><label>Data</label><input type="date" id="idate"></div>
+        <div class="fi"><label>Hora</label><input type="time" id="itime"></div>
+      </div>
+    </div>
+
+    <!-- Method -->
+    <div class="fsec">
+      <div class="fsec-title">Método de Preparo</div>
+      <div class="chips" id="mchips">
+        <button class="chip" data-v="V60"         onclick="selChip(this,'m')">V60</button>
+        <button class="chip" data-v="Chemex"      onclick="selChip(this,'m')">Chemex</button>
+        <button class="chip" data-v="AeroPress"   onclick="selChip(this,'m')">AeroPress</button>
+        <button class="chip" data-v="French Press" onclick="selChip(this,'m')">French Press</button>
+        <button class="chip" data-v="Moka"        onclick="selChip(this,'m')">Moka</button>
+        <button class="chip" data-v="Espresso"    onclick="selChip(this,'m')">Espresso</button>
+        <button class="chip" data-v="Cold Brew"   onclick="selChip(this,'m')">Cold Brew</button>
+        <button class="chip" data-v="Livre"       onclick="selChip(this,'m')">Livre</button>
+      </div>
+    </div>
+
+    <!-- Technique -->
+    <div class="fsec">
+      <div class="fsec-title">Técnica</div>
+      <div class="chips" id="tchips">
+        <button class="chip" data-v="James Hoffman"  onclick="selChip(this,'t')">James Hoffman</button>
+        <button class="chip" data-v="4:6 Kasuya"     onclick="selChip(this,'t')">4:6 (Kasuya)</button>
+        <button class="chip" data-v="Scott Rao"      onclick="selChip(this,'t')">Scott Rao</button>
+        <button class="chip" data-v="Osmotic Flow"   onclick="selChip(this,'t')">Osmotic Flow</button>
+        <button class="chip" data-v="Livre"          onclick="selChip(this,'t')">Livre</button>
+      </div>
+    </div>
+
+    <!-- Quantities -->
+    <div class="fsec">
+      <div class="fsec-title">Quantidades</div>
+      <div class="row2">
+        <div class="fi">
+          <label>Café</label>
+          <div class="amt-wrap"><input type="number" id="icoffee" placeholder="15" min="0" max="200" step="0.5"><span class="amt-unit">g</span></div>
+        </div>
+        <div class="fi">
+          <label>Água</label>
+          <div class="amt-wrap"><input type="number" id="iwater" placeholder="250" min="0" max="5000" step="5"><span class="amt-unit">g</span></div>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <div class="fi"><label>Tempo de Preparo</label><input type="text" id="itime2" placeholder="3:00"></div>
+      </div>
+    </div>
+
+    <!-- Ratings -->
+    <div class="fsec">
+      <div class="fsec-title">Avaliação dos Sabores (0 – 5)</div>
+      <div class="sliders">
+        <div class="sl">
+          <div class="sl-head"><span class="sl-lbl">Amargor</span><span class="sl-val" id="vb">0</span></div>
+          <input type="range" min="0" max="5" step="0.5" value="0" id="sb" oninput="sv('b')">
+        </div>
+        <div class="sl">
+          <div class="sl-head"><span class="sl-lbl">Doçura</span><span class="sl-val" id="vd">0</span></div>
+          <input type="range" min="0" max="5" step="0.5" value="0" id="sd" oninput="sv('d')">
+        </div>
+        <div class="sl">
+          <div class="sl-head"><span class="sl-lbl">Acidez</span><span class="sl-val" id="va">0</span></div>
+          <input type="range" min="0" max="5" step="0.5" value="0" id="sa" oninput="sv('a')">
+        </div>
+        <div class="sl">
+          <div class="sl-head"><span class="sl-lbl">Corpo</span><span class="sl-val" id="vc">0</span></div>
+          <input type="range" min="0" max="5" step="0.5" value="0" id="sc" oninput="sv('c')">
+        </div>
+        <div class="sl sl-sep">
+          <div class="sl-head"><span class="sl-lbl ovr">Nota Geral</span><span class="sl-val ovr" id="vo">0</span></div>
+          <input type="range" class="ovr-range" min="0" max="5" step="0.5" value="0" id="so" oninput="sv('o')">
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="fsec">
+      <div class="fsec-title">Notas</div>
+      <div class="fi"><textarea id="inotes" placeholder="Aromas, texturas, impressões…"></textarea></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── State ──
+let entries = [];
+let page = 0;
+let eid = null;      // editing id
+let selM = '';       // selected method
+let selT = '';       // selected technique
+let photo = null;    // base64
+
+try { entries = JSON.parse(localStorage.getItem('cbj') || '[]'); } catch(e) { entries = []; }
+
+// ── Navigation ──
+function go(n) {
+  page = n;
+  document.getElementById('track').style.transform = n ? 'translateX(-50%)' : 'translateX(0)';
+  document.getElementById('t0').classList.toggle('on', n === 0);
+  document.getElementById('t1').classList.toggle('on', n === 1);
+  if (n === 1) renderStats();
+}
+
+// Swipe between pages
+let sx = 0, sy = 0;
+document.querySelector('.vp').addEventListener('touchstart', e => {
+  sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+}, { passive: true });
+document.querySelector('.vp').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - sx;
+  const dy = e.changedTouches[0].clientY - sy;
+  if (Math.abs(dx) > Math.abs(dy) + 10 && Math.abs(dx) > 48) {
+    if (dx < 0 && page === 0) go(1);
+    else if (dx > 0 && page === 1) go(0);
+  }
+}, { passive: true });
+
+// ── Sheet ──
+function openSheet(id = null) {
+  eid = id;
+  resetForm();
+  if (id) {
+    const e = entries.find(x => x.id === id);
+    if (e) fillForm(e);
+    document.getElementById('stitle').textContent = 'Editar Xícara';
+  } else {
+    document.getElementById('stitle').textContent = 'Nova Xícara';
+    const now = new Date();
+    document.getElementById('idate').value = now.toISOString().slice(0, 10);
+    document.getElementById('itime').value = now.toTimeString().slice(0, 5);
+  }
+  document.getElementById('sheet').classList.add('open');
+  document.getElementById('bd').classList.add('on');
+}
+
+function closeSheet() {
+  document.getElementById('sheet').classList.remove('open');
+  document.getElementById('bd').classList.remove('on');
+}
+
+function resetForm() {
+  selM = ''; selT = ''; photo = null;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  ['b','d','a','c','o'].forEach(k => {
+    document.getElementById('s'+k).value = 0;
+    document.getElementById('v'+k).textContent = '0';
+  });
+  ['idate','itime','icoffee','iwater','itime2','inotes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  const pb = document.getElementById('pbox');
+  pb.classList.remove('filled');
+  const img = pb.querySelector('img'); if (img) img.remove();
+}
+
+function fillForm(e) {
+  const dt = new Date(e.date);
+  document.getElementById('idate').value = dt.toISOString().slice(0, 10);
+  document.getElementById('itime').value = dt.toTimeString().slice(0, 5);
+  document.getElementById('icoffee').value = e.coffee || '';
+  document.getElementById('iwater').value  = e.water  || '';
+  document.getElementById('itime2').value  = e.brewTime || '';
+  document.getElementById('inotes').value  = e.notes   || '';
+  if (e.method)    { selM = e.method;    document.querySelectorAll('#mchips .chip').forEach(c => c.classList.toggle('on', c.dataset.v === e.method)); }
+  if (e.technique) { selT = e.technique; document.querySelectorAll('#tchips .chip').forEach(c => c.classList.toggle('on', c.dataset.v === e.technique)); }
+  if (e.photo) {
+    photo = e.photo;
+    const pb = document.getElementById('pbox'); pb.classList.add('filled');
+    let img = document.createElement('img'); img.src = e.photo; pb.prepend(img);
+  }
+  const r = e.ratings || {};
+  [['b','bitterness'],['d','sweetness'],['a','acidity'],['c','body'],['o','overall']].forEach(([k,rk]) => {
+    const v = r[rk] ?? 0;
+    document.getElementById('s'+k).value = v;
+    document.getElementById('v'+k).textContent = v;
+  });
+}
+
+// ── Photo ──
+function onPhoto(e) {
+  const f = e.target.files[0]; if (!f) return;
+  const fr = new FileReader();
+  fr.onload = ev => {
+    photo = ev.target.result;
+    const pb = document.getElementById('pbox'); pb.classList.add('filled');
+    let img = pb.querySelector('img');
+    if (!img) { img = document.createElement('img'); pb.prepend(img); }
+    img.src = photo;
+  };
+  fr.readAsDataURL(f);
+}
+
+// ── Chips ──
+function selChip(el, type) {
+  const grp = type === 'm' ? 'mchips' : 'tchips';
+  document.querySelectorAll('#'+grp+' .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  if (type === 'm') selM = el.dataset.v; else selT = el.dataset.v;
+}
+
+// ── Sliders ──
+function sv(k) {
+  document.getElementById('v'+k).textContent = document.getElementById('s'+k).value;
+}
+
+// ── Save ──
+function save() {
+  const d = document.getElementById('idate').value;
+  if (!d) { alert('Informe a data.'); return; }
+  const t = document.getElementById('itime').value || '00:00';
+  const entry = {
+    id: eid || ('cb' + Date.now()),
+    date: new Date(d + 'T' + t).toISOString(),
+    photo: photo,
+    method: selM,
+    technique: selT,
+    brewTime: document.getElementById('itime2').value,
+    coffee: parseFloat(document.getElementById('icoffee').value) || null,
+    water:  parseFloat(document.getElementById('iwater').value)  || null,
+    notes:  document.getElementById('inotes').value.trim(),
+    ratings: {
+      bitterness: +document.getElementById('sb').value,
+      sweetness:  +document.getElementById('sd').value,
+      acidity:    +document.getElementById('sa').value,
+      body:       +document.getElementById('sc').value,
+      overall:    +document.getElementById('so').value,
+    }
+  };
+  if (eid) {
+    const i = entries.findIndex(x => x.id === eid); if (i >= 0) entries[i] = entry;
+  } else {
+    entries.unshift(entry);
+  }
+  persist(); closeSheet(); renderJournal();
+}
+
+function persist() {
+  try { localStorage.setItem('cbj', JSON.stringify(entries)); }
+  catch(e) {
+    const slim = entries.map(x => ({...x, photo:null}));
+    localStorage.setItem('cbj', JSON.stringify(slim));
+  }
+}
+
+// ── Helpers ──
+function fmtDate(iso) {
+  return new Date(iso).toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
+}
+function fmtTime(iso) {
+  return new Date(iso).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+}
+function bestWorst() {
+  if (entries.length < 2) return { best:null, worst:null };
+  const s = [...entries].sort((a,b) => b.ratings.overall - a.ratings.overall);
+  return { best: s[0].id, worst: s[s.length-1].id };
+}
+function dots(v, max=5) {
+  return Array.from({length:max}, (_,i) =>
+    `<div class="dot${i < Math.round(v) ? ' on' : ''}"></div>`
+  ).join('');
+}
+function avg(k) {
+  if (!entries.length) return 0;
+  return (entries.reduce((s,e) => s + (e.ratings[k]||0), 0) / entries.length).toFixed(1);
+}
+
+// ── Render Journal ──
+function renderJournal() {
+  const el = document.getElementById('elist');
+  const em = document.getElementById('empty0');
+  const ct = document.getElementById('jcount');
+  const n  = entries.length;
+  ct.textContent = n === 0 ? 'Nenhum registro' : n === 1 ? '1 registro' : `${n} registros`;
+  if (!n) { el.innerHTML = ''; em.classList.add('show'); return; }
+  em.classList.remove('show');
+  const { best, worst } = bestWorst();
+  el.innerHTML = entries.map((e, i) => {
+    const isBest  = e.id === best;
+    const isWorst = e.id === worst;
+    const thumb = e.photo
+      ? `<div class="ethumb"><img src="${e.photo}" alt=""></div>`
+      : `<div class="ethumb"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>`;
+    const specs = [
+      e.coffee ? `${e.coffee}g café` : '',
+      e.water  ? `${e.water}g água`  : '',
+      e.brewTime ? e.brewTime : ''
+    ].filter(Boolean);
+    const specHtml = specs.length ? `<div class="echips">${specs.map(s=>`<span class="echip">${s}</span>`).join('')}</div>` : '';
+    const badgeHtml = isBest ? `<span class="badge badge-best">Melhor</span>` : isWorst ? `<span class="badge badge-worst">Pior</span>` : '';
+    return `<div class="card ecard${isBest?' is-best':isWorst?' is-worst':''}" onclick="openSheet('${e.id}')" style="animation-delay:${i*0.06}s">
+  <div class="ecard-top">
+    ${thumb}
+    <div class="einfo">
+      <div class="edate">${fmtDate(e.date)} · ${fmtTime(e.date)}</div>
+      <div class="emethod">${e.method || 'Método Livre'}</div>
+      ${e.technique ? `<div class="etech">${e.technique}</div>` : ''}
+      ${specHtml}
+    </div>
+  </div>
+  <div class="ebar">
+    <div class="escore"><span class="n">${e.ratings.overall}</span><span class="m">/ 5</span></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      ${badgeHtml}
+      <div class="edots">
+        <div class="edot-g"><label>Amargor</label><div class="dots">${dots(e.ratings.bitterness)}</div></div>
+        <div class="edot-g"><label>Doçura</label><div class="dots">${dots(e.ratings.sweetness)}</div></div>
+        <div class="edot-g"><label>Acidez</label><div class="dots">${dots(e.ratings.acidity)}</div></div>
+      </div>
+    </div>
+  </div>
+</div>`;
+  }).join('');
+}
+
+// ── Render Stats ──
+function renderStats() {
+  const el  = document.getElementById('stats');
+  const em  = document.getElementById('empty1');
+  if (!entries.length) { em.classList.add('show'); el.innerHTML = ''; return; }
+  em.classList.remove('show');
+  const { best, worst } = bestWorst();
+  const be = entries.find(e => e.id === best);
+  const we = entries.find(e => e.id === worst);
+  const cats = [
+    { k:'bitterness', l:'Amargor' },
+    { k:'sweetness',  l:'Doçura'  },
+    { k:'acidity',    l:'Acidez'  },
+    { k:'body',       l:'Corpo'   },
+    { k:'overall',    l:'Geral'   },
+  ];
+  const barsHtml = cats.map(c => {
+    const v = avg(c.k);
+    return `<div class="rbar-row">
+      <span class="rbar-lbl">${c.l}</span>
+      <div class="rbar-track"><div class="rbar-fill" style="width:${(v/5*100).toFixed(1)}%"></div></div>
+      <span class="rbar-val">${v}</span>
+    </div>`;
+  }).join('');
+
+  // Calendar
+  const now = new Date(), yr = now.getFullYear(), mo = now.getMonth();
+  const fd  = new Date(yr, mo, 1).getDay();
+  const dim = new Date(yr, mo+1, 0).getDate();
+  const td  = now.getDate();
+  const eDays = new Set(entries.filter(e => {
+    const d = new Date(e.date); return d.getFullYear()===yr && d.getMonth()===mo;
+  }).map(e => new Date(e.date).getDate()));
+  const wdLabels = ['D','S','T','Q','Q','S','S'].map(d=>`<div class="wday">${d}</div>`).join('');
+  let cells = Array(fd).fill('<div></div>');
+  for (let d=1; d<=dim; d++) {
+    const cls = d===td ? 'today' : eDays.has(d) ? 'has' : '';
+    cells.push(`<div class="cday${cls?' '+cls:''}">${d}</div>`);
+  }
+  const monthName = now.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+
+  el.innerHTML = `
+<div class="sgrid">
+  <div class="card scard">
+    <div class="scard-lbl">Nota Média</div>
+    <div class="scard-val">${avg('overall')}<span class="u">/ 5</span></div>
+    <div class="scard-sub">Nota geral</div>
+  </div>
+  <div class="card scard">
+    <div class="scard-lbl">Total de Xícaras</div>
+    <div class="scard-val">${entries.length}</div>
+    <div class="scard-sub">Registros</div>
+  </div>
+</div>
+
+<div class="card rbars">
+  <div class="rbars-title">Média por Sabor</div>
+  ${barsHtml}
+</div>
+
+${be ? `<div class="card hcard best-c">
+  <div class="hbadge best">★ Melhor Xícara</div>
+  <div class="hmethod">${be.method||'Método Livre'}</div>
+  <div class="hdate">${fmtDate(be.date)}${be.technique?' · '+be.technique:''}</div>
+  <div class="hscore">${be.ratings.overall}</div>
+</div>` : ''}
+
+${(we && we.id !== best) ? `<div class="card hcard worst-c">
+  <div class="hbadge worst">▾ Pior Xícara</div>
+  <div class="hmethod">${we.method||'Método Livre'}</div>
+  <div class="hdate">${fmtDate(we.date)}${we.technique?' · '+we.technique:''}</div>
+  <div class="hscore">${we.ratings.overall}</div>
+</div>` : ''}
+
+<div class="card cal">
+  <div class="cal-head">
+    <span class="cal-t">Registros do Mês</span>
+    <span class="cal-m">${monthName}</span>
+  </div>
+  <div class="wdays">${wdLabels}</div>
+  <div class="cdays">${cells.join('')}</div>
+</div>`;
+}
+
+// ── Init ──
+renderJournal();
+</script>
+</body>
+</html>
