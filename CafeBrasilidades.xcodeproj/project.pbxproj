@@ -1,0 +1,363 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CAFE0001000000000000AB01 /* CafeBrasilidesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFE0001000000000000AA01 /* CafeBrasilidesApp.swift */; };
+		CAFE0001000000000000AB02 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFE0001000000000000AA02 /* ContentView.swift */; };
+		CAFE0001000000000000AB03 /* CoffeeEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFE0001000000000000AA03 /* CoffeeEntry.swift */; };
+		CAFE0001000000000000AB04 /* PhotoCloudView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFE0001000000000000AA04 /* PhotoCloudView.swift */; };
+		CAFE0001000000000000AB05 /* PhotoCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFE0001000000000000AA05 /* PhotoCardView.swift */; };
+		CAFE0001000000000000AB06 /* AddCoffeeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFE0001000000000000AA06 /* AddCoffeeView.swift */; };
+		CAFE0001000000000000AB07 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CAFE0001000000000000AA07 /* Assets.xcassets */; };
+		CAFE0001000000000000AB09 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFE0001000000000000AA09 /* DesignSystem.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		CAFE0001000000000000AA01 /* CafeBrasilidesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CafeBrasilidesApp.swift; sourceTree = "<group>"; };
+		CAFE0001000000000000AA02 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		CAFE0001000000000000AA03 /* CoffeeEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeEntry.swift; sourceTree = "<group>"; };
+		CAFE0001000000000000AA04 /* PhotoCloudView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCloudView.swift; sourceTree = "<group>"; };
+		CAFE0001000000000000AA05 /* PhotoCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCardView.swift; sourceTree = "<group>"; };
+		CAFE0001000000000000AA06 /* AddCoffeeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCoffeeView.swift; sourceTree = "<group>"; };
+		CAFE0001000000000000AA07 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CAFE0001000000000000AA08 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CAFE0001000000000000AA09 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		CAFE0001000000000000AF01 /* CafeBrasilidades.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CafeBrasilidades.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CAFE0001000000000000AD02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CAFE0001000000000000AC01 /* Root */ = {
+			isa = PBXGroup;
+			children = (
+				CAFE0001000000000000AC03 /* CafeBrasilidades */,
+				CAFE0001000000000000AC02 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CAFE0001000000000000AC02 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CAFE0001000000000000AF01 /* CafeBrasilidades.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CAFE0001000000000000AC03 /* CafeBrasilidades */ = {
+			isa = PBXGroup;
+			children = (
+				CAFE0001000000000000AA01 /* CafeBrasilidesApp.swift */,
+				CAFE0001000000000000AA02 /* ContentView.swift */,
+				CAFE0001000000000000AA09 /* DesignSystem.swift */,
+				CAFE0001000000000000AC04 /* Models */,
+				CAFE0001000000000000AC05 /* Views */,
+				CAFE0001000000000000AA07 /* Assets.xcassets */,
+				CAFE0001000000000000AA08 /* Info.plist */,
+			);
+			path = CafeBrasilidades;
+			sourceTree = "<group>";
+		};
+		CAFE0001000000000000AC04 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				CAFE0001000000000000AA03 /* CoffeeEntry.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		CAFE0001000000000000AC05 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				CAFE0001000000000000AA04 /* PhotoCloudView.swift */,
+				CAFE0001000000000000AA05 /* PhotoCardView.swift */,
+				CAFE0001000000000000AA06 /* AddCoffeeView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CAFE0001000000000000AF02 /* CafeBrasilidades */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CAFE0001000000000000AE06 /* Build configuration list for PBXNativeTarget "CafeBrasilidades" */;
+			buildPhases = (
+				CAFE0001000000000000AD01 /* Sources */,
+				CAFE0001000000000000AD02 /* Frameworks */,
+				CAFE0001000000000000AD03 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CafeBrasilidades;
+			productName = CafeBrasilidades;
+			productReference = CAFE0001000000000000AF01 /* CafeBrasilidades.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CAFE0001000000000000AF03 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					CAFE0001000000000000AF02 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+				};
+			};
+			buildConfigurationList = CAFE0001000000000000AE05 /* Build configuration list for PBXProject "CafeBrasilidades" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CAFE0001000000000000AC01;
+			productRefGroup = CAFE0001000000000000AC02 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CAFE0001000000000000AF02 /* CafeBrasilidades */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CAFE0001000000000000AD03 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CAFE0001000000000000AB07 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CAFE0001000000000000AD01 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CAFE0001000000000000AB01 /* CafeBrasilidesApp.swift in Sources */,
+				CAFE0001000000000000AB02 /* ContentView.swift in Sources */,
+				CAFE0001000000000000AB09 /* DesignSystem.swift in Sources */,
+				CAFE0001000000000000AB03 /* CoffeeEntry.swift in Sources */,
+				CAFE0001000000000000AB04 /* PhotoCloudView.swift in Sources */,
+				CAFE0001000000000000AB05 /* PhotoCardView.swift in Sources */,
+				CAFE0001000000000000AB06 /* AddCoffeeView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		CAFE0001000000000000AE01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_IVAR_ACCESS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		CAFE0001000000000000AE02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_IVAR_ACCESS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CAFE0001000000000000AE03 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CafeBrasilidades/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cafebrasilidades.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		CAFE0001000000000000AE04 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CafeBrasilidades/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cafebrasilidades.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CAFE0001000000000000AE05 /* Build configuration list for PBXProject "CafeBrasilidades" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CAFE0001000000000000AE01 /* Debug */,
+				CAFE0001000000000000AE02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CAFE0001000000000000AE06 /* Build configuration list for PBXNativeTarget "CafeBrasilidades" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CAFE0001000000000000AE03 /* Debug */,
+				CAFE0001000000000000AE04 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CAFE0001000000000000AF03 /* Project object */;
+}
